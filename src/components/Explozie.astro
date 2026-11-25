@@ -1,49 +1,85 @@
 ---
 // Casa 760 redesenată în 3D: se desface la scroll; la click, planul se construiește bucată cu bucată.
 import type { Lang } from '../i18n/ui';
-interface Props { lang: Lang }
-const { lang } = Astro.props;
-const T = {
-  ro: {
-    phases: [
+interface Props { lang: Lang; model: string }
+const { lang, model } = Astro.props;
+const PHASES: Record<string, { ro: string[]; en: string[] }> = {
+  comana: {
+    ro: [
       'Casa 760, redesenată după releveu: 14,60 × 4,60 m, patru încăperi în șir.',
       'Casa se desface pe straturi: acoperiș, pereți exteriori și tâmplărie, pereți interiori, sobe și mobilier, soclu.',
       'Acoperișul se ridică, iar straturile coboară la loc.',
       'Secțiune orizontală la 1,20 m: planul casei, cu pereții, ușile și mobilierul.',
     ],
-    open: 'Vezi cum se construiește planul',
-    hint: 'Apasă pe desen',
-    replay: 'Reia',
-    close: 'Închide',
-    note: 'Model redesenat după releveu. Dimensiunile sunt cele de pe planșe; mobilierul e așezat aproximativ, după fotografii.',
-  },
-  en: {
-    phases: [
+    en: [
       'House 760, redrawn from the survey: 14.60 × 4.60 m, four rooms in a row.',
       'The house comes apart in layers: roof, exterior walls and joinery, interior walls, stoves and furniture, plinth.',
       'The roof lifts away and the layers settle back down.',
       'Horizontal section at 1.20 m: the plan, with walls, doors and furniture.',
     ],
-    open: 'See how the plan is built',
-    hint: 'Click the drawing',
-    replay: 'Replay',
-    close: 'Close',
-    note: 'Model redrawn from the survey. Dimensions follow the drawings; furniture is placed approximately, from photographs.',
   },
+  columbariu: {
+    ro: [
+      'Columbariul: o galerie boltită între două ziduri groase și un turn semicircular.',
+      'Galeria se desface: bolta, zidurile cu fața înclinată, nișele pentru urne, pavajul cu rigola.',
+      'Bolta și streașina turnului se ridică, zidurile coboară la loc.',
+      'Secțiune orizontală la 1,20 m: coridorul dintre ziduri și turnul deschis spre est.',
+    ],
+    en: [
+      'The columbarium: a vaulted gallery between two thick walls, and a semicircular tower.',
+      'The gallery comes apart: the vault, the battered walls, the urn niches, the paving with its channel.',
+      'The vault and the tower hood lift away, the walls settle back.',
+      'Horizontal section at 1.20 m: the corridor between the walls and the tower open to the east.',
+    ],
+  },
+  'casa-karatistului': {
+    ro: [
+      'Casa karatistului: trei volume care urcă în trepte pe versant.',
+      'Fiecare nivel se desface: plăcile de acoperiș în consolă, fațadele vitrate, pereții, scările și camera de tatami.',
+      'Acoperișurile se ridică, nivelurile coboară la loc.',
+      'Planul în trepte: fiecare nivel secționat la 1,20 m deasupra pardoselii lui.',
+    ],
+    en: [
+      'The Karateka’s House: three volumes stepping up the slope.',
+      'Each level comes apart: cantilevered roof slabs, glazed façades, walls, stairs and the tatami room.',
+      'The roofs lift away, the levels settle back down.',
+      'The stepped plan: each level cut at 1.20 m above its own floor.',
+    ],
+  },
+};
+const NOTE: Record<string, { ro: string; en: string }> = {
+  comana: {
+    ro: 'Model redesenat după releveu. Dimensiunile sunt cele de pe planșe; mobilierul e așezat aproximativ, după fotografii.',
+    en: 'Model redrawn from the survey. Dimensions follow the drawings; furniture is placed approximately, from photographs.',
+  },
+  columbariu: {
+    ro: 'Model redesenat după plan, fațade și secțiune. Desenele nu au cote, așa că dimensiunile sunt estimate din proporții.',
+    en: 'Model redrawn from the plan, elevations and section. The drawings carry no dimensions, so sizes are estimated from proportions.',
+  },
+  'casa-karatistului': {
+    ro: 'Model redesenat după secțiune și planuri. Scara e estimată după siluetele umane și după tatami.',
+    en: 'Model redrawn from the section and plans. Scale is estimated from the human figures and the tatami mats.',
+  },
+};
+const T = {
+  ro: { open: 'Vezi cum se construiește planul', hint: 'Apasă pe desen', replay: 'Reia', close: 'Închide' },
+  en: { open: 'See how the plan is built', hint: 'Click the drawing', replay: 'Replay', close: 'Close' },
 }[lang];
+const phases = PHASES[model][lang];
+const note = NOTE[model][lang];
 ---
-<section class="explozie" data-explozie data-lang={lang}>
+<section class="explozie" data-explozie data-lang={lang} data-model={model}>
   <div class="sticky">
-    <canvas aria-label={T.phases[0]} role="img"></canvas>
+    <canvas aria-label={phases[0]} role="img"></canvas>
     <button type="button" class="hit" data-open aria-label={T.open}></button>
     <div class="captions wrap">
-      {T.phases.map((t, i) => <p data-phase={i} class:list={[{ on: i === 0 }]}>{t}</p>)}
+      {phases.map((t, i) => <p data-phase={i} class:list={[{ on: i === 0 }]}>{t}</p>)}
       <button type="button" class="open" data-open>{T.open} →</button>
     </div>
     <span class="hint label">{T.hint}</span>
   </div>
 </section>
-<p class="wrap note label">{T.note}</p>
+<p class="wrap note label">{note}</p>
 
 <dialog class="build" data-build>
   <canvas></canvas>
@@ -65,12 +101,13 @@ const T = {
   const dialog = document.querySelector<HTMLDialogElement>('[data-build]');
   if (section && dialog) {
     const lang = (section.dataset.lang as 'ro' | 'en') ?? 'ro';
-    mountScroll(section, lang);
+    const model = section.dataset.model!;
+    mountScroll(section, lang, model);
     let play: (() => void) | null = null;
     section.querySelectorAll('[data-open]').forEach((b) =>
       b.addEventListener('click', () => {
         dialog.showModal();
-        play ??= mountBuild(dialog, lang);
+        play ??= mountBuild(dialog, lang, model);
         play();
       }),
     );
@@ -79,7 +116,7 @@ const T = {
 </script>
 
 <style>
-  .explozie { height: 420vh; position: relative; }
+  .explozie { height: 260vh; position: relative; }
   .sticky { position: sticky; top: 64px; height: calc(100vh - 64px); overflow: hidden; }
   .sticky canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
   .hit { position: absolute; inset: 0 0 30% 0; background: none; border: 0; cursor: zoom-in; }

@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import Explozie from './Explozie.astro';
 import { proiecte, categorii, type Proiect } from '../data/proiecte';
 import { t, routes, type Lang } from '../i18n/ui';
 
@@ -9,6 +10,7 @@ const tr = t(lang);
 const other = lang === 'ro' ? 'en' : 'ro';
 const i = proiecte.findIndex((x) => x.slug === p.slug);
 const next = proiecte.length > 1 ? proiecte[(i + 1) % proiecte.length] : null;
+const ANIMATE = ['comana', 'columbariu', 'casa-karatistului'];
 const drawingsTitle = lang === 'ro' ? 'Desene' : 'Drawings';
 ---
 
@@ -35,6 +37,8 @@ const drawingsTitle = lang === 'ro' ? 'Desene' : 'Drawings';
       {p.suprafata && <div><dt class="label">{tr('project.area')}</dt><dd>{p.suprafata}</dd></div>}
     </dl>
   </section>
+
+  {ANIMATE.includes(p.slug) && <Explozie lang={lang} model={p.slug} />}
 
   {p.sectiuni.map((sec, n) => (
     <section class:list={['wrap', 'split', { reverse: n % 2 === 1, desen: sec.desen }]}>

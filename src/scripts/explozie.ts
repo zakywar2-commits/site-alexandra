@@ -1,6 +1,17 @@
 // Animațiile casei explodate: (1) la scroll, (2) construirea planului la click.
 import * as THREE from 'three';
-import { buildHouse, LIFT, type Piece } from './casa760';
+import { buildHouse, type Model, type Piece } from './modele/casa760';
+import { buildColumbariu } from './modele/columbariu';
+import { buildKarate } from './modele/karate';
+
+export const MODELS: Record<string, () => Model> = {
+  comana: buildHouse,
+  columbariu: buildColumbariu,
+  'casa-karatistului': buildKarate,
+};
+
+/** straturile care devin poché (închise la culoare) când sunt secționate în plan */
+const POCHE_LAYERS = new Set(['pereti-ext', 'pereti-int', 'ziduri', 'turn', 'pereti']);
 
 type Lang = 'ro' | 'en';
 const BG = 0xf4f1ec;
@@ -17,16 +28,22 @@ interface Prepared extends Piece {
   mats: { m: THREE.Material & { opacity: number; color?: THREE.Color }; o: number; c?: THREE.Color }[];
 }
 
-/** fiecare piesă primește materiale proprii, ca să poată fi estompată separat */
-function prepare(pieces: Piece[]): Prepared[] {
+/** fiecare piesă primește materiale proprii, ca să poată fi estompată și secționată separat */
+function prepare(pieces: Piece[], planes: Map<number, THREE.Plane>): Prepared[] {
   return pieces.map((p) => {
     const mats: Prepared['mats'] = [];
+    let plane: THREE.Plane | undefined;
+    if (p.cut !== undefined) {
+      if (!planes.has(p.cut)) planes.set(p.cut, new THREE.Plane(new THREE.Vector3(0, -1, 0), 100000));
+      plane = planes.get(p.cut);
+    }
     p.obj.traverse((o) => {
       const any = o as THREE.Mesh;
       if (!any.material) return;
       const m = (any.material as THREE.Material).clone() as Prepared['mats'][number]['m'];
       m.transparent = m.opacity < 0.999;
       if ('side' in m && o instanceof THREE.Mesh) (m as THREE.MeshLambertMaterial).side = THREE.DoubleSide;
+      if (plane) m.clippingPlanes = [plane];
       any.material = m;
       mats.push({ m, o: m.opacity, c: m.color ? m.color.clone() : undefined });
     });
@@ -46,6 +63,7 @@ function setup(canvas: HTMLCanvasElement) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.setClearColor(BG, 1);
+  renderer.localClippingEnabled = true;
   const scene = new THREE.Scene();
   scene.add(new THREE.AmbientLight(0xffffff, 1.6));
   const sun = new THREE.DirectionalLight(0xffffff, 1.6);
@@ -85,15 +103,14 @@ function resize(renderer: THREE.WebGLRenderer, el: HTMLElement) {
 
 /* ---------------- 1. casa care se desface la scroll ---------------- */
 
-export function mountScroll(section: HTMLElement, lang: Lang) {
+export function mountScroll(section: HTMLElement, lang: Lang, model: string) {
   const canvas = section.querySelector<HTMLCanvasElement>('canvas')!;
   const captions = [...section.querySelectorAll<HTMLElement>('[data-phase]')];
   const { renderer, scene, camera } = setup(canvas);
-  const { root, pieces } = buildHouse();
-  const P = prepare(pieces);
+  const { root, pieces, lift: LIFT, view: V } = MODELS[model]();
+  const planes = new Map<number, THREE.Plane>();
+  const P = prepare(pieces, planes);
   scene.add(root);
-  const cut = new THREE.Plane(new THREE.Vector3(0, -1, 0), 10000);
-  renderer.clippingPlanes = [cut];
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let aspect = resize(renderer, canvas);
   let p = 0;
@@ -104,21 +121,21 @@ export function mountScroll(section: HTMLElement, lang: Lang) {
     const toPlan = smooth(0.58, 0.86, p);
     const roofGone = smooth(0.5, 0.7, p);
     for (const q of P) {
-      const lift = LIFT[q.layer] * e + (q.layer === 'acoperis' ? 900 * roofGone : 0);
+      const lift = (LIFT[q.layer] ?? 0) * e + (q.layer === 'acoperis' || q.layer === 'bolta' ? 900 * roofGone : 0);
       q.obj.position.set(q.base.x, q.base.y + lift, q.base.z + (q.layer === 'prispa' ? 160 * e : 0));
-      setOpacity(q, q.layer === 'acoperis' ? 1 - roofGone : 1);
+      setOpacity(q, q.layer === 'acoperis' || q.layer === 'bolta' ? 1 - roofGone : 1);
       // pereții secționați devin poché în plan
-      if (q.layer === 'pereti-ext' || q.layer === 'pereti-int') {
+      if (POCHE_LAYERS.has(q.layer)) {
         for (const { m, c } of q.mats) if (c && m.color && m.type !== 'LineBasicMaterial') m.color.copy(c).lerp(POCHE, toPlan * 0.92);
       }
     }
-    cut.constant = THREE.MathUtils.lerp(4000, 50 + 120, toPlan);
+    for (const [h, pl] of planes) pl.constant = THREE.MathUtils.lerp(100000, h, toPlan);
     const elev = THREE.MathUtils.lerp(0.55, Math.PI / 2 - 0.0001, toPlan);
     const portrait = aspect < 0.8;
     const azim = THREE.MathUtils.lerp(-0.62 + p * 0.5, portrait ? Math.PI / 2 : 0, toPlan);
-    const fitW = THREE.MathUtils.lerp(1900, portrait ? 760 : 1680, toPlan);
-    const fitH = THREE.MathUtils.lerp(1050 + 900 * e, portrait ? 2300 : 760, toPlan);
-    const target = new THREE.Vector3(portrait ? 260 * toPlan : 0, THREE.MathUtils.lerp(260 + 420 * e, 0, toPlan), THREE.MathUtils.lerp(0, 50, toPlan));
+    const fitW = THREE.MathUtils.lerp(V.isoW, portrait ? V.planH : V.planW, toPlan);
+    const fitH = THREE.MathUtils.lerp(V.isoH + 900 * e, portrait ? V.planW * 1.37 : V.planH, toPlan);
+    const target = new THREE.Vector3(portrait ? V.planW * 0.155 * toPlan : 0, THREE.MathUtils.lerp(V.targetY + 420 * e, 0, toPlan), THREE.MathUtils.lerp(0, 50, toPlan));
     placeCamera(camera, aspect, elev, azim, fitW, fitH, target);
     renderer.render(scene, camera);
     const idx = p < 0.12 ? 0 : p < 0.52 ? 1 : p < 0.8 ? 2 : 3;
@@ -138,29 +155,31 @@ export function mountScroll(section: HTMLElement, lang: Lang) {
 
 /* ---------------- 2. planul construit bucată cu bucată ---------------- */
 
-export function mountBuild(dialog: HTMLDialogElement, lang: Lang) {
+export function mountBuild(dialog: HTMLDialogElement, lang: Lang, model: string) {
   const canvas = dialog.querySelector<HTMLCanvasElement>('canvas')!;
   const caption = dialog.querySelector<HTMLElement>('[data-caption]')!;
   const counter = dialog.querySelector<HTMLElement>('[data-counter]')!;
   const replay = dialog.querySelector<HTMLButtonElement>('[data-replay]')!;
   const { renderer, scene, camera } = setup(canvas);
-  const { root, pieces } = buildHouse();
-  const all = prepare(pieces);
-  all.filter((q) => q.layer === 'acoperis').forEach((q) => root.remove(q.obj));
-  const P = all.filter((q) => q.layer !== 'acoperis').sort((a, b) => a.order - b.order);
+  const { root, pieces, view: V } = MODELS[model]();
+  const planes = new Map<number, THREE.Plane>();
+  const all = prepare(pieces, planes);
+  const skip = (q: Piece) => q.layer === 'acoperis' || q.layer === 'bolta';
+  all.filter(skip).forEach((q) => root.remove(q.obj));
+  const P = all.filter((q) => !skip(q)).sort((a, b) => a.order - b.order);
   scene.add(root);
-  // planul: secțiune orizontală la 1,20 m, pereții secționați închiși la culoare
-  renderer.clippingPlanes = [new THREE.Plane(new THREE.Vector3(0, -1, 0), 50 + 120)];
+  // planul: fiecare nivel secționat la 1,20 m deasupra pardoselii lui, pereții închiși la culoare
+  for (const [h, pl] of planes) pl.constant = h;
   for (const q of P) {
-    if (q.layer !== 'pereti-ext' && q.layer !== 'pereti-int') continue;
+    if (!POCHE_LAYERS.has(q.layer)) continue;
     for (const { m, c } of q.mats) if (c && m.color && m.type === 'MeshLambertMaterial') { m.color.copy(c).lerp(POCHE, 0.92); c.copy(m.color); }
   }
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let aspect = 1;
   let start = 0;
   let raf = 0;
-  const STEP = 650; // ms între piese
-  const DUR = 900; // ms durata căderii unei piese
+  const STEP = 280; // ms între piese
+  const DUR = 480; // ms durata căderii unei piese
 
   const frame = (now: number) => {
     const t = reduce ? 1e9 : now - start;
@@ -176,7 +195,7 @@ export function mountBuild(dialog: HTMLDialogElement, lang: Lang) {
     const portrait = aspect < 0.8;
     const az = -0.45 + k * 0.45 + (portrait ? Math.PI / 2 : 0);
     const elev = THREE.MathUtils.lerp(0.85, 1.25, k);
-    placeCamera(camera, aspect, elev, az, portrait ? 900 : 1700, portrait ? 1700 : 900, new THREE.Vector3(0, 60, 40));
+    placeCamera(camera, aspect, elev, az, portrait ? V.planH * 1.3 : V.planW * 1.05, portrait ? V.planW * 1.05 : V.planH * 1.3, new THREE.Vector3(0, V.targetY * 0.4, 40));
     renderer.render(scene, camera);
     if (current >= 0) {
       caption.textContent = P[current].label[lang];

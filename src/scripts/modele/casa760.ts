@@ -4,7 +4,7 @@
 // Mobilierul e așezat după fotografiile din releveu; pozițiile sunt aproximative.
 import * as THREE from 'three';
 
-export type Layer = 'soclu' | 'pereti-ext' | 'pereti-int' | 'goluri' | 'sobe' | 'mobilier' | 'prispa' | 'acoperis';
+export type Layer = string;
 
 export interface Piece {
   obj: THREE.Object3D;
@@ -14,6 +14,17 @@ export interface Piece {
   order: number;
   /** pentru animații: poziția de bază */
   base: THREE.Vector3;
+  /** cota la care e secționată piesa în plan (cm); fără ea, piesa nu se secționează */
+  cut?: number;
+}
+
+/** un model: piesele, cât se ridică fiecare strat la explozie și cadrul camerei */
+export interface Model {
+  root: THREE.Group;
+  pieces: Piece[];
+  lift: Record<string, number>;
+  /** lățime/înălțime de încadrat în vederea axonometrică și în plan (cm) */
+  view: { isoW: number; isoH: number; planW: number; planH: number; targetY: number };
 }
 
 const T = 36; // grosimea pereților
@@ -24,7 +35,7 @@ const TOP = 335; // coronament
 const EAVE = 401;
 const RIDGE = 530;
 
-const COL = {
+export const COL = {
   wall: 0xf7f4ee,
   wallInt: 0xefe9df,
   plinth: 0xd9d2c5,
@@ -39,14 +50,14 @@ const COL = {
   line: 0x1d1c1a,
 };
 
-const lineMat = new THREE.LineBasicMaterial({ color: COL.line, transparent: true, opacity: 0.55 });
+export const lineMat = new THREE.LineBasicMaterial({ color: COL.line, transparent: true, opacity: 0.55 });
 
-function mat(color: number, extra: Partial<THREE.MeshLambertMaterialParameters> = {}) {
+export function mat(color: number, extra: Partial<THREE.MeshLambertMaterialParameters> = {}) {
   return new THREE.MeshLambertMaterial({ color, transparent: true, opacity: 1, ...extra });
 }
 
 /** cutie din colțuri (x0,y0,z0)–(x1,y1,z1), cu contur */
-function box(x0: number, y0: number, z0: number, x1: number, y1: number, z1: number, color: number, extra = {}) {
+export function box(x0: number, y0: number, z0: number, x1: number, y1: number, z1: number, color: number, extra = {}) {
   const w = Math.abs(x1 - x0), h = Math.abs(y1 - y0), d = Math.abs(z1 - z0);
   const g = new THREE.BoxGeometry(w, h, d);
   const m = new THREE.Mesh(g, mat(color, extra));
@@ -140,7 +151,7 @@ function openingFill(o: Opening, axis: 'x' | 'z', c0: number, c1: number) {
   return g;
 }
 
-function cylinder(x: number, z: number, r: number, y0: number, y1: number, color: number) {
+export function cylinder(x: number, z: number, r: number, y0: number, y1: number, color: number) {
   const g = new THREE.CylinderGeometry(r, r, y1 - y0, 32);
   const m = new THREE.Mesh(g, mat(color));
   m.position.set(x, (y0 + y1) / 2, z);
@@ -178,7 +189,7 @@ function hipRoof(x0: number, x1: number, z0: number, z1: number, yEave: number, 
   return m;
 }
 
-export function buildHouse() {
+export function buildHouse(): Model {
   const root = new THREE.Group();
   // centrăm casa în origine
   root.position.set(-L / 2, 0, -D / 2);
@@ -186,7 +197,7 @@ export function buildHouse() {
   let order = 0;
   const add = (obj: THREE.Object3D, layer: Layer, ro: string, en: string, ord = order++) => {
     root.add(obj);
-    pieces.push({ obj, layer, label: { ro, en }, order: ord, base: obj.position.clone() });
+    pieces.push({ obj, layer, label: { ro, en }, order: ord, base: obj.position.clone(), cut: FL + 120 });
   };
 
   // încăperi (interior, în X): R1 36–336, R2 372–704, R3 740–1000, R4 1036–1424
@@ -285,11 +296,11 @@ export function buildHouse() {
   // acoperiș
   add(hipRoof(0, L, 0, D, EAVE, RIDGE), 'acoperis', 'Acoperișul în patru ape, coama la +530 cm', 'Hipped roof, ridge at +530 cm');
 
-  return { root, pieces, size: { L, D, RIDGE } };
+  return { root, pieces, lift: LIFT, view: { isoW: 1900, isoH: 1050, planW: 1680, planH: 760, targetY: 260 } };
 }
 
 /** cât se ridică fiecare strat când casa e explodată */
-export const LIFT: Record<Layer, number> = {
+const LIFT: Record<string, number> = {
   soclu: 0,
   sobe: 170,
   mobilier: 170,
