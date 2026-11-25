@@ -1,6 +1,6 @@
 # Site portofoliu de arhitectură
 
-Site static în Astro 5 pentru portofoliul de arhitectură al lui Razvan. Limba principală e româna; există versiune în engleză sub /en/.
+Site static în Astro 5 pentru portofoliul de arhitectură al Alexandrei Tonciu (site administrat de Razvan). Limba principală e româna; există versiune în engleză sub /en/.
 
 ## Comenzi
 - `npm install` · `npm run dev` (local, http://localhost:4321) · `npm run build` · `npm run preview`

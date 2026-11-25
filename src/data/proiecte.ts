@@ -120,7 +120,7 @@ export const proiecte: Proiect[] = [
       o('martori', 2000, 1117, { ro: 'Fotografii ale degradărilor casei', en: 'Photographs of the damage to the house' }),
     ],
     credite: [
-      { rol: { ro: 'Echipa de proiect', en: 'Project team' }, nume: '[de completat]' },
+      { rol: { ro: 'Echipa de proiect', en: 'Project team' }, nume: 'Tonciu Alexandra, împreună cu colegii [de completat]' },
     ],
   },
   {
@@ -181,8 +181,8 @@ export const proiecte: Proiect[] = [
       c('macheta-interior-4', 2400, 2400, { ro: 'Macheta, turnul și zidul în contralumină', en: 'Model, the tower and wall against the light' }),
     ],
     credite: [
-      { rol: { ro: 'Arhitectură', en: 'Architecture' }, nume: '[de completat]' },
-      { rol: { ro: 'Machetă și desene', en: 'Model and drawings' }, nume: '[de completat]' },
+      { rol: { ro: 'Arhitectură', en: 'Architecture' }, nume: 'Tonciu Alexandra' },
+      { rol: { ro: 'Machetă și desene', en: 'Model and drawings' }, nume: 'Tonciu Alexandra' },
     ],
   },
   {
@@ -250,7 +250,7 @@ export const proiecte: Proiect[] = [
       k('macheta-2', 1800, 1800, M('colaj pe teren', 'collage on the terrain')),
     ],
     credite: [
-      { rol: { ro: 'Arhitectură', en: 'Architecture' }, nume: '[de completat]' },
+      { rol: { ro: 'Arhitectură', en: 'Architecture' }, nume: 'Tonciu Alexandra' },
     ],
   },
 ];

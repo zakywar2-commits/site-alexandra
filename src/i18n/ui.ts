@@ -2,7 +2,7 @@ export type Lang = 'ro' | 'en';
 
 export const ui = {
   ro: {
-    'site.name': 'Studio de arhitectură',
+    'site.name': 'Tonciu Alexandra',
     'nav.projects': 'Proiecte',
     'nav.about': 'Studio',
     'nav.contact': 'Contact',
@@ -32,7 +32,7 @@ export const ui = {
     'footer.rights': 'Toate drepturile rezervate.',
   },
   en: {
-    'site.name': 'Architecture studio',
+    'site.name': 'Tonciu Alexandra',
     'nav.projects': 'Projects',
     'nav.about': 'Studio',
     'nav.contact': 'Contact',
