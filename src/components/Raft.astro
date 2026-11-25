@@ -1,0 +1,60 @@
+---
+// Raftul cu broșuri: fiecare proiect e o copertă; la hover se întredeschide.
+import { proiecte } from '../data/proiecte';
+import type { Lang } from '../i18n/ui';
+import { withBase } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const base = lang === 'ro' ? '/prototip/carte/' : '/en/prototype/book/';
+const T = {
+  ro: { title: 'Proiecte', open: 'Răsfoiește', note: 'Prototip: proiectele ca broșuri. Ține mouse-ul pe o copertă, apoi apasă pe foaie.' },
+  en: { title: 'Projects', open: 'Leaf through', note: 'Prototype: the projects as brochures. Hover over a cover, then click the page.' },
+}[lang];
+---
+<section class="raft wrap">
+  <h1 class="visually-hidden">{T.title}</h1>
+  <p class="note">{T.note}</p>
+  <ul>
+    {proiecte.map((p) => (
+      <li>
+        <a class="brosura" href={withBase(`${base}${p.slug}/#deschide`)}>
+          <span class="inner">
+            <span class="lbl">{p.stadiu[lang]}</span>
+            <span class="t">{p.titlu[lang]}</span>
+            <span class="r">{p.rezumat[lang]}</span>
+            <span class="go">{T.open} →</span>
+          </span>
+          <span class="cop">
+            <span class="img"><img src={p.cover.src} width={p.cover.w} height={p.cover.h} alt="" loading="lazy" /></span>
+            <span class="band"><span class="t">{p.titlu[lang]}</span><span class="a">Tonciu Alexandra</span></span>
+          </span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .raft { padding-top: clamp(32px, 6vw, 72px); }
+  .note { color: var(--muted); font-size: 14px; margin: 0 0 clamp(28px, 5vw, 56px); }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: clamp(40px, 6vw, 88px) clamp(28px, 5vw, 72px); }
+  .brosura { position: relative; display: block; aspect-ratio: 0.74; perspective: 1800px; text-decoration: none; color: var(--ink); }
+  .inner, .cop { position: absolute; inset: 0; }
+  .inner { background: #fbfaf6; display: flex; flex-direction: column; gap: 10px; padding: 12% 11%; box-shadow: 0 12px 26px rgb(40 30 20 / 0.12), 0 1px 2px rgb(40 30 20 / 0.12); }
+  .inner::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to right, rgb(0 0 0 / 0.08), transparent 8%); pointer-events: none; }
+  .lbl { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  .inner .t { font-size: 22px; font-weight: 500; line-height: 1.2; }
+  .r { font-size: 14px; line-height: 1.5; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+  .go { margin-top: auto; font-size: 14px; border-bottom: 1px solid currentColor; align-self: flex-start; }
+  .cop { transform-origin: left center; transition: transform 0.8s cubic-bezier(0.3, 0.1, 0.2, 1); background: #ece7de; box-shadow: 0 12px 26px rgb(40 30 20 / 0.14), 0 1px 2px rgb(40 30 20 / 0.14); backface-visibility: hidden; }
+  .cop .img { position: absolute; inset: 0 0 24% 0; overflow: hidden; }
+  .cop img { width: 100%; height: 100%; object-fit: cover; max-width: none; transition: transform 1.6s ease; }
+  .band { position: absolute; inset: 76% 0 0 0; padding: 6% 9%; display: flex; flex-direction: column; justify-content: space-between; }
+  .band .t { font-size: 19px; font-weight: 500; }
+  .band .a { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+  @media (hover: hover) {
+    .brosura:hover .cop, .brosura:focus-visible .cop { transform: rotateY(-58deg); }
+    .brosura:hover .cop img { transform: scale(1.04); }
+  }
+</style>

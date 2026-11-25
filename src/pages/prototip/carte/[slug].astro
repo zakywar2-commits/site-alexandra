@@ -1,0 +1,12 @@
+---
+import Base from '../../../layouts/Base.astro';
+import Carte from '../../../components/Carte.astro';
+import { proiecte } from '../../../data/proiecte';
+import { withBase } from '../../../i18n/ui';
+export const getStaticPaths = () => proiecte.map((p) => ({ params: { slug: p.slug }, props: { p } }));
+const { p } = Astro.props;
+---
+<Base lang="ro" title={p.titlu.ro} alt={withBase(`/en/prototype/book/${p.slug}/`)}>
+  <meta slot="head" name="robots" content="noindex" />
+  <Carte lang="ro" p={p} shelf={withBase('/prototip/carte/')} />
+</Base>

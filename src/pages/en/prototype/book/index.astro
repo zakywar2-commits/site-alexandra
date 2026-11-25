@@ -1,0 +1,9 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import Raft from '../../../../components/Raft.astro';
+import { withBase } from '../../../../i18n/ui';
+---
+<Base lang="en" title="Projects (prototype)" alt={withBase('/prototip/carte/')}>
+  <meta slot="head" name="robots" content="noindex" />
+  <Raft lang="en" />
+</Base>
