@@ -4,11 +4,12 @@ Site static în Astro 5 pentru portofoliul de arhitectură al lui Razvan. Limba 
 
 ## Comenzi
 - `npm install` · `npm run dev` (local, http://localhost:4321) · `npm run build` · `npm run preview`
-- `node scripts/placeholders.mjs` regenerează imaginile provizorii.
 
 ## Unde e ce
 - Proiecte (texte RO/EN, categorii, credite): `src/data/proiecte.ts`
-- Imagini: `public/images/<slug>/` cu numele cover, macheta, situatie, interventie, perspectiva, galerie-1…N. Când pui poze reale, schimbă `ext` la proiect în `jpg` sau `webp`.
+- Imagini: `public/images/<slug>/`, WebP, latura mare 1800–2400px. Fiecare imagine e declarată în `proiecte.ts` cu lățime, înălțime și text alternativ RO/EN.
+- Un proiect are: macheta (imaginea mare de sus, se micșorează la scroll), secțiuni text + imagine, desene (grilă pe alb), galerie (fundal închis), credite.
+- Textele proiectului Comana sunt preluate din planșele de prezentare; la celelalte două sunt scrise după desene și trebuie confirmate.
 - Texte interfață și rute: `src/i18n/ui.ts`
 - Formular contact: setează `PUBLIC_FORM_ENDPOINT` (ex. Formspree) într-un fișier `.env`; fără el formularul e în mod demo.
 
@@ -17,6 +18,6 @@ project-manager → designer → developer → code-reviewer → tester; continu
 
 ## Reguli
 - Orice text vizibil există în ambele limbi.
-- Nu inventa informații despre proiecte; ce nu știm rămâne marcat „provizoriu”.
+- Nu inventa informații despre proiecte; ce nu știm rămâne „[de completat]” (pe prima pagină aceste câmpuri sunt ascunse).
 - Respectă `prefers-reduced-motion` și lățimea de telefon (360px) fără scroll orizontal.
 - Comunicarea cu Razvan se face în română.

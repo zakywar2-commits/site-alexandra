@@ -1,22 +1,23 @@
 ---
 import Base from '../layouts/Base.astro';
-import { proiecte, imagini, categorii, type Proiect } from '../data/proiecte';
+import { proiecte, categorii, type Proiect } from '../data/proiecte';
 import { t, routes, type Lang } from '../i18n/ui';
 
 interface Props { lang: Lang; p: Proiect }
 const { lang, p } = Astro.props;
 const tr = t(lang);
-const img = imagini(p);
 const other = lang === 'ro' ? 'en' : 'ro';
 const i = proiecte.findIndex((x) => x.slug === p.slug);
-const next = proiecte[(i + 1) % proiecte.length];
+const next = proiecte.length > 1 ? proiecte[(i + 1) % proiecte.length] : null;
+const drawingsTitle = lang === 'ro' ? 'Desene' : 'Drawings';
 ---
+
 <Base lang={lang} title={p.titlu[lang]} description={p.rezumat[lang]} alt={routes[other].project(p.slug)}>
   <!-- Macheta: ocupă ecranul, apoi se micșorează pe măsură ce derulezi -->
   <section class="hero" data-hero>
     <div class="hero-sticky">
       <figure class="hero-fig">
-        <img src={img.macheta} alt={lang === 'ro' ? `Macheta proiectului ${p.titlu.ro}` : `Model of ${p.titlu.en}`} width="1800" height="1200" fetchpriority="high" />
+        <img src={p.macheta.src} alt={p.macheta.alt[lang]} width={p.macheta.w} height={p.macheta.h} fetchpriority="high" />
       </figure>
       <div class="hero-title">
         <span class="label">{categorii[p.categorie][lang]}</span>
@@ -35,29 +36,37 @@ const next = proiecte[(i + 1) % proiecte.length];
     </dl>
   </section>
 
-  <section class="wrap split">
-    <div class="text"><h2>{tr('project.location')}</h2><p>{p.situatie[lang]}</p></div>
-    <img src={img.situatie} alt="" loading="lazy" width="1600" height="1067" />
-  </section>
+  {p.sectiuni.map((sec, n) => (
+    <section class:list={['wrap', 'split', { reverse: n % 2 === 1, desen: sec.desen }]}>
+      <div class="text"><h2>{sec.titlu[lang]}</h2><p>{sec.text[lang]}</p></div>
+      <img src={sec.imagine.src} alt={sec.imagine.alt[lang]} width={sec.imagine.w} height={sec.imagine.h} loading="lazy" />
+    </section>
+  ))}
 
-  <section class="wrap split reverse">
-    <div class="text"><h2>{tr('project.intervention')}</h2><p>{p.interventie[lang]}</p></div>
-    <img src={img.interventie} alt="" loading="lazy" width="1600" height="1067" />
-  </section>
-
-  <section class="perspective">
-    <img src={img.perspectiva} alt="" loading="lazy" width="2000" height="1125" />
-    <div class="wrap text"><h2>{tr('project.perspective')}</h2><p>{p.perspectiva[lang]}</p></div>
-  </section>
-
-  <section class="gallery">
-    <div class="wrap">
-      <h2>{tr('project.gallery')}</h2>
-      <div class="gal-grid">
-        {img.galerie.map((src, n) => <img src={src} alt={`${p.titlu[lang]} – ${n + 1}`} loading="lazy" />)}
+  {p.desene.length > 0 && (
+    <section class="wrap drawings">
+      <h2>{drawingsTitle}</h2>
+      <div class="dr-grid">
+        {p.desene.map((d) => (
+          <figure class:list={[{ tall: d.h > d.w * 1.4 }]}>
+            <img src={d.src} alt={d.alt[lang]} width={d.w} height={d.h} loading="lazy" />
+            {d.legenda && <figcaption class="label">{d.legenda[lang]}</figcaption>}
+          </figure>
+        ))}
       </div>
-    </div>
-  </section>
+    </section>
+  )}
+
+  {p.galerie.length > 0 && (
+    <section class="gallery">
+      <div class="wrap">
+        <h2>{tr('project.gallery')}</h2>
+        <div class="gal-grid">
+          {p.galerie.map((g) => <img src={g.src} alt={g.alt[lang]} width={g.w} height={g.h} loading="lazy" />)}
+        </div>
+      </div>
+    </section>
+  )}
 
   <section class="wrap credits">
     <h2>{tr('project.credits')}</h2>
@@ -68,7 +77,7 @@ const next = proiecte[(i + 1) % proiecte.length];
 
   <nav class="wrap pager" aria-label={tr('project.next')}>
     <a href={routes[lang].home}>← {tr('project.back')}</a>
-    <a href={routes[lang].project(next.slug)}>{tr('project.next')}: {next.titlu[lang]} →</a>
+    {next && <a href={routes[lang].project(next.slug)}>{tr('project.next')}: {next.titlu[lang]} →</a>}
   </nav>
 </Base>
 
@@ -107,18 +116,25 @@ const next = proiecte[(i + 1) % proiecte.length];
 
   .split { display: grid; grid-template-columns: 1fr 1.6fr; gap: clamp(24px, 5vw, 80px); align-items: center; padding-top: 48px; padding-bottom: 48px; }
   .split.reverse .text { order: 2; }
+  .split img { width: 100%; }
+  .split.desen img { max-height: 85vh; width: auto; margin: 0 auto; background: #fff; }
+
+  .drawings { padding-top: 72px; }
+  .drawings h2 { font-size: 26px; margin-bottom: 32px; }
+  .dr-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(24px, 4vw, 56px); align-items: end; }
+  .dr-grid figure { margin: 0; }
+  .dr-grid figure.tall img { max-height: 80vh; width: auto; margin: 0 auto; }
+  .dr-grid img { width: 100%; background: #fff; }
+  .dr-grid figcaption { margin-top: 10px; }
   .text h2 { font-size: 26px; margin-bottom: 16px; }
   .text p { max-width: 52ch; margin: 0; }
 
-  .perspective { margin: 72px 0; }
-  .perspective img { width: 100%; }
-  .perspective .text { padding-top: 24px; }
 
   .gallery { background: var(--dark); color: var(--dark-ink); padding: clamp(56px, 8vw, 112px) 0; }
   .gallery h2 { font-size: 26px; margin-bottom: 32px; }
-  .gal-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(12px, 2vw, 24px); }
-  .gal-grid img { width: 100%; height: 100%; object-fit: cover; }
-  .gal-grid img:nth-child(3n + 1) { grid-column: span 2; }
+  .gal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(8px, 1.5vw, 20px); }
+  .gal-grid { align-items: start; }
+  .gal-grid img { width: 100%; height: auto; }
 
   .credits { padding-top: 72px; }
   .credits h2 { font-size: 26px; margin-bottom: 24px; }
@@ -132,7 +148,6 @@ const next = proiecte[(i + 1) % proiecte.length];
     .head, .split { grid-template-columns: 1fr; }
     .split.reverse .text { order: 0; }
     .hero { height: 160vh; }
-    .gal-grid { grid-template-columns: 1fr; }
-    .gal-grid img:nth-child(3n + 1) { grid-column: auto; }
+    .gal-grid, .dr-grid { grid-template-columns: 1fr; }
   }
 </style>

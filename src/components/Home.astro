@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { proiecte, categorii, imagini, type Categorie } from '../data/proiecte';
+import { proiecte, categorii, type Categorie } from '../data/proiecte';
 import { t, routes, type Lang } from '../i18n/ui';
 
 interface Props { lang: Lang }
@@ -14,19 +14,19 @@ const folosite = [...new Set(proiecte.map((p) => p.categorie))] as Categorie[];
   </section>
 
   <section class="wrap">
-    <div class="filters" role="group" aria-label={tr('home.title')}>
+    {folosite.length > 1 && <div class="filters" role="group" aria-label={tr('home.title')}>
       <button type="button" data-filter="all" aria-pressed="true">{tr('filter.all')}</button>
       {folosite.map((c) => <button type="button" data-filter={c} aria-pressed="false">{categorii[c][lang]}</button>)}
-    </div>
+    </div>}
 
     <ul class="grid">
       {proiecte.map((p) => (
         <li data-cat={p.categorie}>
           <a href={routes[lang].project(p.slug)}>
-            <div class="thumb"><img src={imagini(p).cover} alt={p.titlu[lang]} loading="lazy" width="1600" height="1067" /></div>
+            <div class="thumb"><img src={p.cover.src} alt={p.cover.alt[lang]} loading="lazy" width={p.cover.w} height={p.cover.h} /></div>
             <div class="meta">
               <h2>{p.titlu[lang]}</h2>
-              <span class="label">{p.loc[lang]} · {p.an}</span>
+              <span class="label">{[p.loc[lang], p.an].filter((x) => !x.startsWith('[')).join(' · ')}</span>
             </div>
           </a>
         </li>

@@ -4,13 +4,14 @@
 Un site care prezintă proiectele de arhitectură ale lui Razvan clienților și colaboratorilor, cu accent pe imagini.
 
 ## Pagini
-1. **Prima pagină**: o frază de prezentare și grila de proiecte, cu filtre pe categorii (Locuințe, Spații publice, Restaurare).
+1. **Prima pagină**: o frază de prezentare și grila de proiecte, cu filtre pe categorii (apar doar categoriile folosite).
+
+Proiecte actuale: Casa 760, Comana (restaurare, strada Gelu Naum); Columbariu; Casa karatistului (casă în trepte pe versant).
 2. **Pagina de proiect** (model: /proiecte/comana/):
    - macheta pe tot ecranul, care se micșorează la scroll și lasă să apară titlul;
    - rezumat și date (amplasament, an, stadiu, suprafață);
-   - Amplasament: text și plan de situație;
-   - Intervenția: text și imagine;
-   - Perspectivă: imagine pe toată lățimea și text;
+   - secțiuni text + imagine (ex. amplasament, concept, intervenție), alternând stânga/dreapta;
+   - desene (planuri, secțiuni, fațade, detalii) pe fundal alb;
    - Galerie pe fundal închis;
    - Credite;
    - link spre proiectul următor.
