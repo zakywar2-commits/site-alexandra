@@ -1,0 +1,138 @@
+---
+import Base from '../layouts/Base.astro';
+import { proiecte, imagini, categorii, type Proiect } from '../data/proiecte';
+import { t, routes, type Lang } from '../i18n/ui';
+
+interface Props { lang: Lang; p: Proiect }
+const { lang, p } = Astro.props;
+const tr = t(lang);
+const img = imagini(p);
+const other = lang === 'ro' ? 'en' : 'ro';
+const i = proiecte.findIndex((x) => x.slug === p.slug);
+const next = proiecte[(i + 1) % proiecte.length];
+---
+<Base lang={lang} title={p.titlu[lang]} description={p.rezumat[lang]} alt={routes[other].project(p.slug)}>
+  <!-- Macheta: ocupă ecranul, apoi se micșorează pe măsură ce derulezi -->
+  <section class="hero" data-hero>
+    <div class="hero-sticky">
+      <figure class="hero-fig">
+        <img src={img.macheta} alt={lang === 'ro' ? `Macheta proiectului ${p.titlu.ro}` : `Model of ${p.titlu.en}`} width="1800" height="1200" fetchpriority="high" />
+      </figure>
+      <div class="hero-title">
+        <span class="label">{categorii[p.categorie][lang]}</span>
+        <h1>{p.titlu[lang]}</h1>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap head">
+    <p class="lead">{p.rezumat[lang]}</p>
+    <dl class="facts">
+      <div><dt class="label">{tr('project.location')}</dt><dd>{p.loc[lang]}</dd></div>
+      <div><dt class="label">{tr('project.year')}</dt><dd>{p.an}</dd></div>
+      <div><dt class="label">{tr('project.status')}</dt><dd>{p.stadiu[lang]}</dd></div>
+      {p.suprafata && <div><dt class="label">{tr('project.area')}</dt><dd>{p.suprafata}</dd></div>}
+    </dl>
+  </section>
+
+  <section class="wrap split">
+    <div class="text"><h2>{tr('project.location')}</h2><p>{p.situatie[lang]}</p></div>
+    <img src={img.situatie} alt="" loading="lazy" width="1600" height="1067" />
+  </section>
+
+  <section class="wrap split reverse">
+    <div class="text"><h2>{tr('project.intervention')}</h2><p>{p.interventie[lang]}</p></div>
+    <img src={img.interventie} alt="" loading="lazy" width="1600" height="1067" />
+  </section>
+
+  <section class="perspective">
+    <img src={img.perspectiva} alt="" loading="lazy" width="2000" height="1125" />
+    <div class="wrap text"><h2>{tr('project.perspective')}</h2><p>{p.perspectiva[lang]}</p></div>
+  </section>
+
+  <section class="gallery">
+    <div class="wrap">
+      <h2>{tr('project.gallery')}</h2>
+      <div class="gal-grid">
+        {img.galerie.map((src, n) => <img src={src} alt={`${p.titlu[lang]} – ${n + 1}`} loading="lazy" />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap credits">
+    <h2>{tr('project.credits')}</h2>
+    <dl>
+      {p.credite.map((c) => <div><dt class="label">{c.rol[lang]}</dt><dd>{c.nume}</dd></div>)}
+    </dl>
+  </section>
+
+  <nav class="wrap pager" aria-label={tr('project.next')}>
+    <a href={routes[lang].home}>← {tr('project.back')}</a>
+    <a href={routes[lang].project(next.slug)}>{tr('project.next')}: {next.titlu[lang]} →</a>
+  </nav>
+</Base>
+
+<script>
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (hero && !reduce) {
+    let ticking = false;
+    const update = () => {
+      const r = hero.getBoundingClientRect();
+      const range = hero.offsetHeight - innerHeight;
+      const p = Math.min(1, Math.max(0, -r.top / (range || 1)));
+      hero.style.setProperty('--p', p.toFixed(4));
+      ticking = false;
+    };
+    addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    addEventListener('resize', update);
+    update();
+  }
+</script>
+
+<style>
+  .hero { --p: 0; height: 200vh; position: relative; }
+  .hero-sticky { position: sticky; top: 0; height: 100vh; display: grid; place-items: center; overflow: hidden; }
+  .hero-fig { margin: 0; width: 100%; height: 100%; transform: scale(calc(1 - var(--p) * 0.45)); transform-origin: 50% 45%; will-change: transform; }
+  .hero-fig img { width: 100%; height: 100%; object-fit: cover; border-radius: calc(var(--p) * 6px); }
+  .hero-title { position: absolute; left: var(--gutter); bottom: clamp(24px, 6vh, 64px); opacity: calc(var(--p) * 2); }
+  .hero-title h1 { font-size: clamp(40px, 8vw, 120px); }
+  @media (prefers-reduced-motion: reduce) { .hero { height: auto; } .hero-sticky { position: relative; height: 80vh; } .hero-title { opacity: 1; } }
+
+  section { scroll-margin-top: 72px; }
+  .head { display: grid; grid-template-columns: 2fr 1fr; gap: 48px; padding-top: 72px; padding-bottom: 72px; }
+  .lead { font-size: clamp(20px, 2.4vw, 30px); line-height: 1.35; margin: 0; }
+  .facts { margin: 0; display: grid; gap: 16px; align-content: start; }
+  dd { margin: 2px 0 0; }
+
+  .split { display: grid; grid-template-columns: 1fr 1.6fr; gap: clamp(24px, 5vw, 80px); align-items: center; padding-top: 48px; padding-bottom: 48px; }
+  .split.reverse .text { order: 2; }
+  .text h2 { font-size: 26px; margin-bottom: 16px; }
+  .text p { max-width: 52ch; margin: 0; }
+
+  .perspective { margin: 72px 0; }
+  .perspective img { width: 100%; }
+  .perspective .text { padding-top: 24px; }
+
+  .gallery { background: var(--dark); color: var(--dark-ink); padding: clamp(56px, 8vw, 112px) 0; }
+  .gallery h2 { font-size: 26px; margin-bottom: 32px; }
+  .gal-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(12px, 2vw, 24px); }
+  .gal-grid img { width: 100%; height: 100%; object-fit: cover; }
+  .gal-grid img:nth-child(3n + 1) { grid-column: span 2; }
+
+  .credits { padding-top: 72px; }
+  .credits h2 { font-size: 26px; margin-bottom: 24px; }
+  .credits dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 24px; }
+
+  .pager { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding-top: 72px; }
+  .pager a { text-decoration: none; }
+  .pager a:hover { text-decoration: underline; text-underline-offset: 5px; }
+
+  @media (max-width: 760px) {
+    .head, .split { grid-template-columns: 1fr; }
+    .split.reverse .text { order: 0; }
+    .hero { height: 160vh; }
+    .gal-grid { grid-template-columns: 1fr; }
+    .gal-grid img:nth-child(3n + 1) { grid-column: auto; }
+  }
+</style>

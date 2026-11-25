@@ -1,0 +1,78 @@
+---
+import Base from '../layouts/Base.astro';
+import { t, routes, type Lang } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const tr = t(lang);
+// Adresa serviciului de formulare (ex. Formspree). Fără ea, formularul rulează în mod demo.
+const endpoint = import.meta.env.PUBLIC_FORM_ENDPOINT ?? '';
+---
+<Base lang={lang} title={tr('contact.title')} description={tr('contact.intro')} alt={routes[lang === 'ro' ? 'en' : 'ro'].contact}>
+  <section class="wrap contact">
+    <div>
+      <h1>{tr('contact.title')}</h1>
+      <p>{tr('contact.intro')}</p>
+    </div>
+
+    <form id="contact" method="post" action={endpoint || undefined} data-endpoint={endpoint} novalidate>
+      <label>{tr('contact.name')}<input name="name" autocomplete="name" required /></label>
+      <label>{tr('contact.email')}<input name="email" type="email" autocomplete="email" required /></label>
+      <label>{tr('contact.message')}<textarea name="message" rows="6" required></textarea></label>
+      <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="visually-hidden" aria-hidden="true" />
+      <button type="submit" data-sending={tr('contact.sending')}>{tr('contact.send')}</button>
+      <p class="error" role="alert" hidden>{tr('contact.error')}</p>
+    </form>
+
+    <div class="thanks" id="thanks" hidden tabindex="-1">
+      <h2>{tr('contact.thanks.title')}</h2>
+      <p>{tr('contact.thanks.body')}</p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('#contact')!;
+  const thanks = document.querySelector<HTMLElement>('#thanks')!;
+  const error = form.querySelector<HTMLElement>('.error')!;
+  const btn = form.querySelector<HTMLButtonElement>('button')!;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    error.hidden = true;
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    const label = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = btn.dataset.sending!;
+    try {
+      const endpoint = form.dataset.endpoint;
+      if (endpoint) {
+        const res = await fetch(endpoint, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
+        if (!res.ok) throw new Error(String(res.status));
+      } else {
+        console.warn('PUBLIC_FORM_ENDPOINT nu e setat: formular în mod demo, mesajul nu a fost trimis.');
+      }
+      form.hidden = true;
+      thanks.hidden = false;
+      thanks.focus();
+    } catch {
+      error.hidden = false;
+      btn.disabled = false;
+      btn.textContent = label;
+    }
+  });
+</script>
+
+<style>
+  .contact { display: grid; grid-template-columns: 1fr 1.2fr; gap: clamp(32px, 6vw, 96px); padding-top: clamp(48px, 8vw, 120px); }
+  h1 { font-size: clamp(36px, 5vw, 64px); margin-bottom: 16px; }
+  form { display: grid; gap: 20px; }
+  label { display: grid; gap: 6px; font-size: 14px; color: var(--muted); }
+  input, textarea { font: inherit; color: var(--ink); background: transparent; border: 0; border-bottom: 1px solid var(--ink); padding: 8px 0; border-radius: 0; }
+  textarea { resize: vertical; border: 1px solid var(--ink); padding: 10px; }
+  button { justify-self: start; font: inherit; background: var(--ink); color: var(--bg); border: 0; padding: 12px 24px; cursor: pointer; }
+  button:disabled { opacity: .6; cursor: progress; }
+  .error { color: #a33; margin: 0; }
+  .thanks h2 { font-size: 32px; margin-bottom: 8px; }
+  @media (max-width: 760px) { .contact { grid-template-columns: 1fr; } }
+</style>

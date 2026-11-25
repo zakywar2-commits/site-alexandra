@@ -1,0 +1,22 @@
+:root {
+  --bg: #f4f1ec;
+  --ink: #1d1c1a;
+  --muted: #6d6a64;
+  --line: #d6d1c8;
+  --dark: #151514;
+  --dark-ink: #ecE8e1;
+  --font: "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+  --gutter: clamp(16px, 4vw, 48px);
+  --max: 1400px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.55; }
+img { display: block; max-width: 100%; height: auto; }
+a { color: inherit; }
+h1, h2, h3 { font-weight: 500; letter-spacing: -0.01em; line-height: 1.15; margin: 0; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+.label { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

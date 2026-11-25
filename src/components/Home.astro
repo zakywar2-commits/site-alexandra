@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro';
+import { proiecte, categorii, imagini, type Categorie } from '../data/proiecte';
+import { t, routes, type Lang } from '../i18n/ui';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const tr = t(lang);
+const folosite = [...new Set(proiecte.map((p) => p.categorie))] as Categorie[];
+---
+<Base lang={lang} title={tr('home.title')} description={tr('home.intro')} alt={routes[lang === 'ro' ? 'en' : 'ro'].home}>
+  <section class="wrap intro">
+    <h1>{tr('home.intro')}</h1>
+  </section>
+
+  <section class="wrap">
+    <div class="filters" role="group" aria-label={tr('home.title')}>
+      <button type="button" data-filter="all" aria-pressed="true">{tr('filter.all')}</button>
+      {folosite.map((c) => <button type="button" data-filter={c} aria-pressed="false">{categorii[c][lang]}</button>)}
+    </div>
+
+    <ul class="grid">
+      {proiecte.map((p) => (
+        <li data-cat={p.categorie}>
+          <a href={routes[lang].project(p.slug)}>
+            <div class="thumb"><img src={imagini(p).cover} alt={p.titlu[lang]} loading="lazy" width="1600" height="1067" /></div>
+            <div class="meta">
+              <h2>{p.titlu[lang]}</h2>
+              <span class="label">{p.loc[lang]} · {p.an}</span>
+            </div>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+</Base>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+  const items = document.querySelectorAll<HTMLElement>('.grid li');
+  function apply(f: string) {
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === f)));
+    items.forEach((li) => { li.hidden = f !== 'all' && li.dataset.cat !== f; });
+  }
+  buttons.forEach((b) => b.addEventListener('click', () => {
+    const f = b.dataset.filter!;
+    apply(f);
+    history.replaceState(null, '', f === 'all' ? location.pathname : `#${f}`);
+  }));
+  const fromHash = location.hash.slice(1);
+  if (fromHash && document.querySelector(`[data-filter="${CSS.escape(fromHash)}"]`)) apply(fromHash);
+</script>
+
+<style>
+  .intro { padding: clamp(48px, 10vw, 140px) var(--gutter) clamp(32px, 6vw, 72px); }
+  .intro h1 { font-size: clamp(30px, 5vw, 64px); max-width: 16ch; }
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+  .filters button { font: inherit; font-size: 14px; background: none; border: 1px solid var(--line); color: var(--ink); padding: 6px 14px; border-radius: 999px; cursor: pointer; }
+  .filters button[aria-pressed='true'] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: clamp(24px, 4vw, 56px) clamp(16px, 3vw, 40px); }
+  .grid a { text-decoration: none; display: block; }
+  .thumb { overflow: hidden; aspect-ratio: 3 / 2; background: var(--line); }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+  .grid a:hover img { transform: scale(1.03); }
+  .meta { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-top: 12px; flex-wrap: wrap; }
+  .meta h2 { font-size: 20px; }
+</style>
