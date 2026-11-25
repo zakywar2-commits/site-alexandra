@@ -19,6 +19,7 @@ const path = Astro.url.pathname;
     <link rel="alternate" hreflang={otherLang} href={alt} />
     <meta property="og:title" content={title} />
     {description && <meta property="og:description" content={description} />}
+    <slot name="head" />
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
   </head>
   <body class:list={[{ dark }]}>

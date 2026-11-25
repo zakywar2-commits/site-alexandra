@@ -1,0 +1,101 @@
+---
+// Casa 760 redesenată în 3D: se desface la scroll; la click, planul se construiește bucată cu bucată.
+import type { Lang } from '../i18n/ui';
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const T = {
+  ro: {
+    phases: [
+      'Casa 760, redesenată după releveu: 14,60 × 4,60 m, patru încăperi în șir.',
+      'Casa se desface pe straturi: acoperiș, pereți exteriori și tâmplărie, pereți interiori, sobe și mobilier, soclu.',
+      'Acoperișul se ridică, iar straturile coboară la loc.',
+      'Secțiune orizontală la 1,20 m: planul casei, cu pereții, ușile și mobilierul.',
+    ],
+    open: 'Vezi cum se construiește planul',
+    hint: 'Apasă pe desen',
+    replay: 'Reia',
+    close: 'Închide',
+    note: 'Model redesenat după releveu. Dimensiunile sunt cele de pe planșe; mobilierul e așezat aproximativ, după fotografii.',
+  },
+  en: {
+    phases: [
+      'House 760, redrawn from the survey: 14.60 × 4.60 m, four rooms in a row.',
+      'The house comes apart in layers: roof, exterior walls and joinery, interior walls, stoves and furniture, plinth.',
+      'The roof lifts away and the layers settle back down.',
+      'Horizontal section at 1.20 m: the plan, with walls, doors and furniture.',
+    ],
+    open: 'See how the plan is built',
+    hint: 'Click the drawing',
+    replay: 'Replay',
+    close: 'Close',
+    note: 'Model redrawn from the survey. Dimensions follow the drawings; furniture is placed approximately, from photographs.',
+  },
+}[lang];
+---
+<section class="explozie" data-explozie data-lang={lang}>
+  <div class="sticky">
+    <canvas aria-label={T.phases[0]} role="img"></canvas>
+    <button type="button" class="hit" data-open aria-label={T.open}></button>
+    <div class="captions wrap">
+      {T.phases.map((t, i) => <p data-phase={i} class:list={[{ on: i === 0 }]}>{t}</p>)}
+      <button type="button" class="open" data-open>{T.open} →</button>
+    </div>
+    <span class="hint label">{T.hint}</span>
+  </div>
+</section>
+<p class="wrap note label">{T.note}</p>
+
+<dialog class="build" data-build>
+  <canvas></canvas>
+  <div class="bar">
+    <div>
+      <span class="label" data-counter></span>
+      <p data-caption></p>
+    </div>
+    <div class="btns">
+      <button type="button" data-replay>{T.replay}</button>
+      <button type="button" data-close>{T.close}</button>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  import { mountScroll, mountBuild } from '../scripts/explozie';
+  const section = document.querySelector<HTMLElement>('[data-explozie]');
+  const dialog = document.querySelector<HTMLDialogElement>('[data-build]');
+  if (section && dialog) {
+    const lang = (section.dataset.lang as 'ro' | 'en') ?? 'ro';
+    mountScroll(section, lang);
+    let play: (() => void) | null = null;
+    section.querySelectorAll('[data-open]').forEach((b) =>
+      b.addEventListener('click', () => {
+        dialog.showModal();
+        play ??= mountBuild(dialog, lang);
+        play();
+      }),
+    );
+    dialog.querySelector('[data-close]')!.addEventListener('click', () => dialog.close());
+  }
+</script>
+
+<style>
+  .explozie { height: 420vh; position: relative; }
+  .sticky { position: sticky; top: 64px; height: calc(100vh - 64px); overflow: hidden; }
+  .sticky canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .hit { position: absolute; inset: 0 0 30% 0; background: none; border: 0; cursor: zoom-in; }
+  .captions { position: absolute; left: 0; right: 0; bottom: clamp(16px, 4vh, 40px); pointer-events: none; }
+  .captions p { position: absolute; bottom: 48px; margin: 0; max-width: 46ch; font-size: clamp(16px, 1.6vw, 20px); line-height: 1.4; opacity: 0; transform: translateY(8px); transition: opacity .5s, transform .5s; }
+  .captions p.on { opacity: 1; transform: none; }
+  .open { pointer-events: auto; font: inherit; font-size: 14px; background: var(--ink); color: var(--bg); border: 0; padding: 10px 18px; cursor: pointer; }
+  .hint { position: absolute; top: 16px; right: var(--gutter); }
+  .note { margin-top: 16px; }
+  .build { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: var(--bg); color: var(--ink); }
+  .build[open] { display: grid; grid-template-rows: 1fr auto; }
+  .build::backdrop { background: rgba(0, 0, 0, .4); }
+  .build canvas { width: 100%; height: 100%; display: block; min-height: 0; }
+  .bar { display: flex; justify-content: space-between; align-items: end; gap: 16px; padding: 16px var(--gutter) 24px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+  .bar p { margin: 4px 0 0; font-size: clamp(17px, 2vw, 24px); min-height: 1.4em; }
+  .btns { display: flex; gap: 8px; }
+  .btns button { font: inherit; font-size: 14px; padding: 10px 18px; border: 1px solid var(--ink); background: none; color: var(--ink); cursor: pointer; }
+  .btns [data-close] { background: var(--ink); color: var(--bg); }
+</style>
