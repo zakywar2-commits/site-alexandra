@@ -1,6 +1,6 @@
 // Datele proiectelor. Textele marcate „de completat” așteaptă informațiile reale de la Razvan.
 // Imaginile stau în public/images/<slug>/ (WebP, latura mare de maximum 2400px).
-import type { Lang } from '../i18n/ui';
+import { withBase, type Lang } from '../i18n/ui';
 
 export type L = Record<Lang, string>;
 
@@ -48,7 +48,7 @@ export interface Proiect {
 const DE_COMPLETAT: L = { ro: '[de completat]', en: '[to be added]' };
 
 const imgDin = (slug: string) => (nume: string, w: number, h: number, alt: L, legenda?: L): Imagine => ({
-  src: `/images/${slug}/${nume}.webp`, w, h, alt, legenda,
+  src: withBase(`/images/${slug}/${nume}.webp`), w, h, alt, legenda,
 });
 const c = imgDin('columbariu');
 const k = imgDin('casa-karatistului');

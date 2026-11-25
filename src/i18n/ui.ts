@@ -66,7 +66,10 @@ export const ui = {
 export type UiKey = keyof (typeof ui)['ro'];
 export const t = (lang: Lang) => (key: UiKey) => ui[lang][key];
 
+/** Prefixează o cale cu baza site-ului (ex. /site-alexandra pe GitHub Pages). */
+export const withBase = (p: string) => import.meta.env.BASE_URL.replace(/\/$/, '') + p;
+
 export const routes = {
-  ro: { home: '/', project: (s: string) => `/proiecte/${s}/`, contact: '/contact/' },
-  en: { home: '/en/', project: (s: string) => `/en/projects/${s}/`, contact: '/en/contact/' },
+  ro: { home: withBase('/'), project: (s: string) => withBase(`/proiecte/${s}/`), contact: withBase('/contact/') },
+  en: { home: withBase('/en/'), project: (s: string) => withBase(`/en/projects/${s}/`), contact: withBase('/en/contact/') },
 };

@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { t, routes, type Lang } from '../i18n/ui';
+import { t, routes, withBase, type Lang } from '../i18n/ui';
 
 interface Props { lang: Lang; title: string; description?: string; alt: string; dark?: boolean }
 const { lang, title, description = '', alt, dark = false } = Astro.props;
@@ -19,7 +19,7 @@ const path = Astro.url.pathname;
     <link rel="alternate" hreflang={otherLang} href={alt} />
     <meta property="og:title" content={title} />
     {description && <meta property="og:description" content={description} />}
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
   </head>
   <body class:list={[{ dark }]}>
     <header class="site-header">
