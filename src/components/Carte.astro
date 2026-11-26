@@ -278,9 +278,7 @@ const margini = proiectePrototip.flatMap((q) => [q.cover, q.macheta, ...q.galeri
   .k-cover .mag.outline { left: 9%; width: 82%; bottom: -0.5em; }
   .k-cover .cover-band { padding-top: 9%; }
   /* titlul ales (Razvan, 2026-11-26): verde închis peste tot; unde trece peste imagine, stă pe o fâșie blurată */
-  .mag.solid { color: var(--titlu); text-shadow: none; }
-  /* peste imagine: litere goale, cu contur, prin care se vede poza */
-  .mag.outline { color: transparent; -webkit-text-stroke: 2px var(--titlu); text-shadow: none; }
+  .mag.solid, .mag.outline { color: var(--titlu); text-shadow: none; }
   .mag.outline { background: rgb(240 233 218 / 0.34); -webkit-backdrop-filter: blur(18px) saturate(0.9); backdrop-filter: blur(18px) saturate(0.9); padding-top: 0.35em; min-height: 2.05em; display: flex; flex-direction: column; justify-content: flex-end; }
   .k-cover .mag.outline { left: 0; width: 82%; padding: 0.15em 9% 0; box-sizing: content-box; }
   .k-photo .mag.outline { left: 0; width: 100%; }
