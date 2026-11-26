@@ -42,6 +42,10 @@ function paperSound() {
 }
 
 export function mountCarte(root: HTMLElement) {
+  // variantele de titlu se compară cu ?titlu=piersica | verde | blur
+  let titlu = new URLSearchParams(location.search).get('titlu');
+  try { if (titlu) sessionStorage.setItem('titlu', titlu); else titlu = sessionStorage.getItem('titlu'); } catch {}
+  if (titlu && ['piersica', 'verde', 'blur'].includes(titlu)) root.dataset.titlu = titlu;
   const stage = root.querySelector<HTMLElement>('[data-stage]')!;
   const book = root.querySelector<HTMLElement>('[data-book]')!;
   const leaves = [...root.querySelectorAll<HTMLElement>('[data-leaf]')];
