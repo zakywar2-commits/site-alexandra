@@ -7,7 +7,7 @@ Site static în Astro 5 pentru portofoliul de arhitectură al Alexandrei Tonciu 
 
 ## Unde e ce
 - Proiecte (texte RO/EN, categorii, credite): `src/data/proiecte.ts`
-- Imagini: `public/images/<slug>/`, WebP, latura mare 1800–2400px. Fiecare imagine e declarată în `proiecte.ts` cu lățime, înălțime și text alternativ RO/EN.
+- Imagini: `public/images/<slug>/`, WebP, latura mare 1800–2400px. Fiecare imagine e declarată în `proiecte.ts` cu lățime, înălțime și text alternativ RO/EN. După ce adaugi imagini, rulează `python3 tools/variante-imagini.py` (face variantele de 800 și 1400 px folosite de broșuri).
 - Un proiect are: macheta (imaginea mare de sus, se micșorează la scroll), secțiuni text + imagine, desene (grilă pe alb), galerie (fundal închis), credite.
 - Textele proiectului Comana sunt preluate din planșele de prezentare; la celelalte două sunt scrise după desene și trebuie confirmate.
 - Texte interfață și rute: `src/i18n/ui.ts`

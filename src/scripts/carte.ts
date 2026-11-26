@@ -68,10 +68,23 @@ export function mountCarte(root: HTMLElement) {
     render(false);
   };
 
+  /** încarcă imaginile doar pentru foile din jurul celei deschise; restul așteaptă */
+  const hydrate = (f: number) => {
+    for (let i = Math.max(0, f - 2); i <= Math.min(L - 1, f + 2); i++) {
+      leaves[i].querySelectorAll<HTMLImageElement | HTMLVideoElement>('[data-src]').forEach((el) => {
+        if (el instanceof HTMLImageElement && el.dataset.srcset) el.srcset = el.dataset.srcset;
+        el.src = el.dataset.src!;
+        el.removeAttribute('data-src');
+        if (el instanceof HTMLVideoElement && !reduce) { el.autoplay = true; el.play().catch(() => {}); }
+      });
+    }
+  };
+
   const flippedCount = () => (single ? Math.ceil(k / 2) : s);
 
   const render = (animate = true, turning = -1) => {
     const f = flippedCount();
+    hydrate(f);
     leaves.forEach((l, i) => {
       const on = i < f;
       l.classList.toggle('flipped', on);

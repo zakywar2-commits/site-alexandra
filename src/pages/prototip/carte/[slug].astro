@@ -1,7 +1,7 @@
 ---
 import Base from '../../../layouts/Base.astro';
 import Carte from '../../../components/Carte.astro';
-import { proiecte } from '../../../data/proiecte';
+import { proiectePrototip as proiecte } from '../../../data/proiecte';
 import { withBase } from '../../../i18n/ui';
 export const getStaticPaths = () => proiecte.map((p) => ({ params: { slug: p.slug }, props: { p } }));
 const { p } = Astro.props;

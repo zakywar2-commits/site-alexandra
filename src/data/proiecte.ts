@@ -43,6 +43,10 @@ export interface Proiect {
   desene: Imagine[];
   galerie: Imagine[];
   credite: { rol: L; nume: string }[];
+  /** imagini care se succed lent pe copertă (ex. aceeași vedere în anotimpuri) */
+  anotimpuri?: Imagine[];
+  /** un film scurt, pus pe o pagină a broșurii */
+  video?: { src: string; poster: string; w: number; h: number; alt: L };
 }
 
 const DE_COMPLETAT: L = { ro: '[de completat]', en: '[to be added]' };
@@ -254,3 +258,54 @@ export const proiecte: Proiect[] = [
     ],
   },
 ];
+
+// Proiect primit doar ca randări (2026-11-26). Numele, locul și textele așteaptă confirmarea lui Razvan;
+// deocamdată apare doar pe paginile de prototip.
+const n = imgDin('proiect-nou');
+const R = (nume: string, ro: string, en: string) => n(nume, 1920, 1080, { ro, en });
+const nou: Proiect = {
+  slug: 'proiect-nou',
+  titlu: { ro: 'Proiect nou', en: 'New project' },
+  loc: DE_COMPLETAT,
+  an: '[de completat]',
+  stadiu: { ro: 'Randări', en: 'Renderings' },
+  categorie: 'locuinte',
+  rezumat: {
+    ro: 'O casă de oraș cu un volum nou, alb, alipit de clădirea veche. Randările o urmăresc din stradă de-a lungul anotimpurilor, prin grădina cu pergolă verde și în interior, de dimineața până noaptea.',
+    en: 'A town house with a new white volume joined to the old building. The renderings follow it from the street through the seasons, through the garden with its green pergola, and inside, from morning until night.',
+  },
+  cover: R('anotimp-1', 'Casa văzută din stradă, vara', 'The house seen from the street, in summer'),
+  macheta: R('strada', 'Strada, cu volumul nou și partea vitrată', 'The street, with the new volume and its glazed part'),
+  anotimpuri: [
+    R('anotimp-1', 'Vara', 'Summer'), R('anotimp-2', 'Sfârșitul verii', 'Late summer'), R('anotimp-3', 'Toamna', 'Autumn'),
+    R('anotimp-4', 'Toamna târziu', 'Late autumn'), R('anotimp-5', 'Începutul iernii', 'Early winter'),
+    R('anotimp-6', 'Iarna', 'Winter'), R('anotimp-7', 'Iarna, cu zăpadă', 'Winter, with snow'),
+  ],
+  video: { src: withBase('/images/proiect-nou/video.mp4'), poster: withBase('/images/proiect-nou/video-poster.webp'), w: 1280, h: 720, alt: { ro: 'Film: strada iarna, sub ninsoare', en: 'Film: the street in winter, under snowfall' } },
+  sectiuni: [],
+  desene: [],
+  galerie: [
+    R('strada-zi', 'Fațada spre stradă, în lumina după-amiezii', 'The street front in afternoon light'),
+    R('strada-seara', 'Fațada spre stradă, seara', 'The street front in the evening'),
+    R('gradina', 'Grădina, cu treptele spre casă', 'The garden, with the steps up to the house'),
+    R('pergola-1', 'Pergola verde, dimineața', 'The green pergola in the morning'),
+    R('pergola-2', 'Lumina prin pergolă', 'Light through the pergola'),
+    R('pergola-3', 'Pergola, la amiază', 'The pergola at noon'),
+    R('pergola-4', 'Umbrele frunzelor pe zid', 'Leaf shadows on the wall'),
+    R('pergola-5', 'Pergola, după-amiaza', 'The pergola in the afternoon'),
+    R('interior-1', 'Interiorul, cu masa și bucătăria', 'The interior, with the table and the kitchen'),
+    R('interior-2', 'Interiorul, dimineața', 'The interior in the morning'),
+    R('interior-3', 'Interiorul, lumină rece', 'The interior in cool light'),
+    R('interior-4', 'Interiorul, lumină caldă', 'The interior in warm light'),
+    R('interior-5', 'Interiorul, spre seară', 'The interior towards evening'),
+    R('interior-6', 'Interiorul, la apus', 'The interior at sunset'),
+    R('interior-noapte', 'Interiorul, noaptea', 'The interior at night'),
+  ],
+  credite: [{ rol: { ro: 'Arhitectură', en: 'Architecture' }, nume: 'Tonciu Alexandra' }],
+};
+
+/** proiectele de pe paginile de prototip: cele publicate plus cele încă neconfirmate */
+export const proiectePrototip: Proiect[] = [...proiecte, nou];
+
+/** variante mai mici ale imaginii (generate de tools/variante-imagini.py) */
+export const srcset = (src: string) => `${src.replace(/\.webp$/, '-800.webp')} 800w, ${src.replace(/\.webp$/, '-1400.webp')} 1400w, ${src} 2000w`;
