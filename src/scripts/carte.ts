@@ -196,10 +196,69 @@ export function mountCarte(root: HTMLElement) {
 
   addEventListener('resize', layout);
   layout();
+  margini(root, reduce);
 
   // venind de pe raft, broșura se deschide singură
   if (location.hash === '#deschide') {
     history.replaceState(null, '', location.pathname);
     setTimeout(() => go(1), reduce ? 0 : 650);
   }
+}
+
+/** poze blurate din proiecte pe marginile fundalului; câte una se schimbă la câteva secunde */
+function margini(root: HTMLElement, reduce: boolean) {
+  const box = root.querySelector<HTMLElement>('[data-margini]');
+  if (!box) return;
+  let pool: string[] = [];
+  try { pool = JSON.parse(box.dataset.margini || '[]'); } catch {}
+  if (pool.length < 2) return;
+  const pick = (not: string[]) => {
+    const free = pool.filter((p) => !not.includes(p));
+    return (free.length ? free : pool)[Math.floor(Math.random() * (free.length || pool.length))];
+  };
+  type Tile = { el: HTMLElement; a: HTMLImageElement; b: HTMLImageElement; src: string };
+  let tiles: Tile[] = [];
+  const shown = () => tiles.map((t) => t.src);
+  const show = (t: Tile, src: string) => {
+    const next = t.a.classList.contains('on') ? t.b : t.a, prev = next === t.a ? t.b : t.a;
+    t.src = src;
+    next.onload = () => { next.classList.add('on'); prev.classList.remove('on'); };
+    next.src = src;
+  };
+  const build = () => {
+    box.replaceChildren();
+    tiles = [];
+    const W = box.clientWidth, H = box.clientHeight;
+    const book = root.querySelector<HTMLElement>('[data-book]')!.getBoundingClientRect();
+    const side = Math.max(0, (W - book.width) / 2);
+    if (W < 760 || side < 90) return; // pe telefon cartea ocupă tot ecranul
+    const per = H > 700 ? 3 : 2;
+    for (const left of [true, false]) {
+      for (let i = 0; i < per; i++) {
+        const w = side * (0.8 + Math.random() * 0.5), h = w * (0.65 + Math.random() * 0.25);
+        const x = left ? side * (Math.random() * 0.35) - w * 0.25 : W - side * (Math.random() * 0.35) - w * 0.75;
+        const y = (H / per) * i + Math.random() * Math.max(0, H / per - h * 0.6) - h * 0.15;
+        const el = document.createElement('div');
+        el.className = 'tile';
+        el.style.cssText = `left:${x}px;top:${y}px;width:${w}px;height:${h}px`;
+        const a = document.createElement('img'), b = document.createElement('img');
+        a.alt = b.alt = '';
+        a.decoding = b.decoding = 'async';
+        el.append(a, b);
+        box.append(el);
+        const t = { el, a, b, src: '' };
+        tiles.push(t);
+        show(t, pick(shown()));
+      }
+    }
+  };
+  build();
+  let rt = 0;
+  addEventListener('resize', () => { clearTimeout(rt); rt = window.setTimeout(build, 400); });
+  if (reduce) return;
+  setInterval(() => {
+    if (!tiles.length || document.hidden) return;
+    const t = tiles[Math.floor(Math.random() * tiles.length)];
+    show(t, pick(shown()));
+  }, 3500);
 }
