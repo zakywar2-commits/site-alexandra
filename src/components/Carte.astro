@@ -102,7 +102,7 @@ const facts = [
   { k: T.year, v: p.an },
 ].filter((f) => known(f.v));
 ---
-<section class:list={['carte', { start: !!start }]} data-carte data-titlu="verde" data-lang={lang} data-hover={start ? '' : undefined} aria-roledescription={lang === 'ro' ? 'carte' : 'book'} aria-label={start ? 'Tonciu Alexandra' : p.titlu[lang]}>
+<section class:list={['carte', { start: !!start }]} data-carte data-lang={lang} data-hover={start ? '' : undefined} aria-roledescription={lang === 'ro' ? 'carte' : 'book'} aria-label={start ? 'Tonciu Alexandra' : p.titlu[lang]}>
   <div class="stage" data-stage>
     <div class="book" data-book data-s="0">
       {leaves.map(([front, back], li) => (
@@ -178,7 +178,7 @@ const facts = [
                     <div class="frame">
                       <img {...ia(pg.img, li, FRAME)} width={pg.img.w} height={pg.img.h} alt={pg.img.alt[lang]} decoding="async" />
                       {pg.seasons && <div class="seasons" aria-hidden="true">{pg.seasons.slice(1).map((im, i) => <img {...ia(im, li, FRAME)} style={`--i:${i + 1}`} alt="" />)}</div>}
-                      {pg.titlu && <div class="mag outline" aria-hidden="true">{pg.titlu}</div>}
+                      {pg.titlu && <div class="mag outline" aria-hidden="true"><span class="in">{pg.titlu}</span></div>}
                     </div>
                   </>
                 ) : (
@@ -267,15 +267,12 @@ const facts = [
   .k-cover .mag.solid { left: 9%; width: 82%; bottom: calc(26% - 0.5em); color: var(--cover-ink); }
   .k-cover .mag.outline { left: 9%; width: 82%; bottom: -0.5em; }
   .k-cover .cover-band { padding-top: 9%; }
-  /* trei variante de titlu, de comparat cu ?titlu=piersica | verde | blur */
-  .carte[data-titlu='piersica'] .mag.outline { color: #f6c7a4; text-shadow: 0 1px 12px rgb(0 0 0 / 0.25); }
-  .carte[data-titlu='piersica'] .mag.solid { color: #c07a58; }
-  .carte[data-titlu='verde'] .mag.solid, .carte[data-titlu='verde'] .mag.outline { color: #26301f; text-shadow: none; }
-  .carte[data-titlu='verde'] .mag.outline, .carte[data-titlu='blur'] .mag.outline { padding-top: 0.12em; margin-left: -0.25em; padding-left: 0.25em; padding-right: 0.25em; box-sizing: content-box; }
-  .carte[data-titlu='verde'] .mag.outline { background: rgb(240 233 218 / 0.38); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
-  .carte[data-titlu='blur'] .mag.outline { color: #fbf8f1; text-shadow: none; background: rgb(20 26 16 / 0.18); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
-  .carte[data-titlu='blur'] .mag.solid { color: #26301f; }
-  .carte[data-titlu='verde'] .k-cover .mag.outline, .carte[data-titlu='blur'] .k-cover .mag.outline { left: 0; width: 82%; margin: 0; padding: 0.15em 9% 0; }
+  /* titlul ales (Razvan, 2026-11-26): verde închis peste tot; unde trece peste imagine, stă pe o fâșie blurată */
+  .mag.solid, .mag.outline { color: #26301f; text-shadow: none; }
+  .mag.outline { background: rgb(240 233 218 / 0.38); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); padding-top: 0.15em; }
+  .k-cover .mag.outline { left: 0; width: 82%; padding: 0.15em 9% 0; box-sizing: content-box; }
+  .k-photo .mag.outline { left: 0; width: 100%; }
+  .k-photo .mag.outline .in { display: block; margin-left: -5.263%; width: 110.53%; }
   .face h2 { font-size: 1.45em; }
   .face h2.big { font-size: 2.1em; margin-bottom: 0.3em; }
   .face p { margin: 0; max-width: 34em; }
