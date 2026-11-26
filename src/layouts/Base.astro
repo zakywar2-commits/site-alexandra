@@ -2,6 +2,12 @@
 import '../styles/global.css';
 import '@fontsource-variable/bodoni-moda';
 import '@fontsource-variable/manrope';
+import '@fontsource-variable/syne';
+import '@fontsource-variable/archivo/wdth.css';
+import '@fontsource-variable/fraunces';
+import '@fontsource/space-mono';
+import '@fontsource/dm-mono';
+import '@fontsource/ibm-plex-mono';
 import { t, routes, withBase, type Lang } from '../i18n/ui';
 
 interface Props { lang: Lang; title: string; description?: string; alt: string; dark?: boolean; proto?: boolean }
@@ -22,10 +28,10 @@ const path = Astro.url.pathname;
     <meta property="og:title" content={title} />
     {description && <meta property="og:description" content={description} />}
     <slot name="head" />
-    {proto && <script is:inline set:html={`try{var f=new URLSearchParams(location.search).get('fundal');if(f)sessionStorage.setItem('fundal',f);else f=sessionStorage.getItem('fundal');if(f&&f!=='verde')document.documentElement.dataset.fundal=f;}catch(e){}`} />}
+    {proto && <script is:inline set:html={`try{var q=new URLSearchParams(location.search);['fundal','font'].forEach(function(k){var v=q.get(k);if(v)sessionStorage.setItem(k,v);else v=sessionStorage.getItem(k);if(v)document.documentElement.dataset[k]=v;});}catch(e){}`} />}
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
   </head>
-  <body class:list={[{ dark, proto }]}>
+  <body class:list={[{ dark, proto }]} style={proto ? `--tex: url(${withBase('/images/textura-var.webp')})` : undefined}>
     <header class="site-header">
       <div class="wrap bar">
         <a class="brand" href={r.home}>{tr('site.name')}</a>

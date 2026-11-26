@@ -237,7 +237,7 @@ const margini = proiectePrototip.flatMap((q) => [q.cover, q.macheta, ...q.galeri
 </script>
 
 <style>
-  .carte { --cover: #e3d8c2; --cover-edge: #b5a68a; --cover-ink: #26301f; font-family: 'Manrope Variable', var(--font); font-weight: 500; --paper: #fbfaf6; --paper-edge: #e9e4da; --pw: 400px; --ph: 533px; display: flex; flex-direction: column; height: calc(100svh - 64px); min-height: 480px; user-select: none; -webkit-user-select: none; }
+  .carte { --cover: #e3d8c2; --cover-edge: #b5a68a; --cover-ink: var(--titlu, #26301f); font-family: 'Manrope Variable', var(--font); font-weight: 500; --paper: #fbfaf6; --paper-edge: #e9e4da; --pw: 400px; --ph: 533px; display: flex; flex-direction: column; height: calc(100svh - 64px); min-height: 480px; user-select: none; -webkit-user-select: none; }
   .carte { position: relative; }
   /* poze blurate pe margini, care se schimbă încet, ca fundalul să pară plin */
   .margini { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
@@ -265,7 +265,7 @@ const margini = proiectePrototip.flatMap((q) => [q.cover, q.macheta, ...q.galeri
   .pad { position: absolute; inset: 0; padding: 9% 10%; margin: 0; }
   .col { display: flex; flex-direction: column; gap: 0.9em; }
   .lbl { font-size: 0.78em; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
-  .face h1, .face h2, .mag { font-family: 'Bodoni Moda Variable', 'Didot', Georgia, serif; font-weight: 500; letter-spacing: -0.02em; }
+  .face h1, .face h2, .mag { font-family: var(--f-titlu); font-weight: var(--w-titlu); font-stretch: var(--s-titlu); letter-spacing: var(--ls-titlu); color: var(--titlu); }
   /* titlu de revistă: plin pe hârtie, doar contur unde trece peste imagine */
   .mag { position: absolute; margin: 0; font-size: 3em; line-height: 0.98; z-index: 1; }
   .mag.solid { color: var(--ink); }
@@ -278,7 +278,7 @@ const margini = proiectePrototip.flatMap((q) => [q.cover, q.macheta, ...q.galeri
   .k-cover .mag.outline { left: 9%; width: 82%; bottom: -0.5em; }
   .k-cover .cover-band { padding-top: 9%; }
   /* titlul ales (Razvan, 2026-11-26): verde închis peste tot; unde trece peste imagine, stă pe o fâșie blurată */
-  .mag.solid, .mag.outline { color: #26301f; text-shadow: none; }
+  .mag.solid, .mag.outline { color: var(--titlu); text-shadow: none; }
   .mag.outline { background: rgb(240 233 218 / 0.34); -webkit-backdrop-filter: blur(18px) saturate(0.9); backdrop-filter: blur(18px) saturate(0.9); padding-top: 0.35em; min-height: 2.05em; display: flex; flex-direction: column; justify-content: flex-end; }
   .k-cover .mag.outline { left: 0; width: 82%; padding: 0.15em 9% 0; box-sizing: content-box; }
   .k-photo .mag.outline { left: 0; width: 100%; }
