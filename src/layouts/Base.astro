@@ -1,9 +1,11 @@
 ---
 import '../styles/global.css';
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource-variable/manrope';
 import { t, routes, withBase, type Lang } from '../i18n/ui';
 
-interface Props { lang: Lang; title: string; description?: string; alt: string; dark?: boolean }
-const { lang, title, description = '', alt, dark = false } = Astro.props;
+interface Props { lang: Lang; title: string; description?: string; alt: string; dark?: boolean; proto?: boolean }
+const { lang, title, description = '', alt, dark = false, proto = false } = Astro.props;
 const tr = t(lang);
 const r = routes[lang];
 const otherLang = lang === 'ro' ? 'en' : 'ro';
@@ -22,7 +24,7 @@ const path = Astro.url.pathname;
     <slot name="head" />
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
   </head>
-  <body class:list={[{ dark }]}>
+  <body class:list={[{ dark, proto }]}>
     <header class="site-header">
       <div class="wrap bar">
         <a class="brand" href={r.home}>{tr('site.name')}</a>

@@ -38,9 +38,6 @@ export function mountCarte(root: HTMLElement) {
   const faces = [...root.querySelectorAll<HTMLElement>('[data-page]')];
   const skip = new Set(faces.filter((f) => f.hasAttribute('data-skip')).map((f) => Number(f.dataset.page)));
   const count = root.querySelector<HTMLElement>('[data-count]')!;
-  const prevBtn = root.querySelector<HTMLButtonElement>('[data-prev]')!;
-  const nextBtn = root.querySelector<HTMLButtonElement>('[data-next]')!;
-  const corners = root.querySelector<HTMLElement>('[data-corners]')!;
   const soundBtn = root.querySelector<HTMLButtonElement>('[data-sound]')!;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const L = leaves.length;
@@ -51,7 +48,6 @@ export function mountCarte(root: HTMLElement) {
   let pw = 400;
   let k = 0; // pagina curentă (telefon); pe calculator ținem doar s
   let s = 0;
-  let spread = false;
 
   if (reduce) {
     book.style.transition = 'none';
@@ -96,11 +92,6 @@ export function mountCarte(root: HTMLElement) {
     if (single) x = k % 2 === 0 ? -pw / 2 : pw / 2; // arătăm doar jumătatea cu pagina curentă
     else x = f === 0 ? -pw / 2 : f === L ? pw / 2 : 0; // închisă: coperta e centrată
     book.style.transform = `translateX(${x}px)`;
-    // butoanele stau în colțurile paginilor vizibile: o pagină sau pagina dublă
-    spread = !single && f > 0 && f < L;
-    corners.style.setProperty('--cw', `${spread ? pw * 2 : pw}px`);
-    const cur = single ? faces.find((el) => Number(el.dataset.page) === k) : f === 0 ? faces[0] : f === L ? faces[N - 1] : undefined;
-    corners.classList.toggle('on-cover', !!cur && /k-(cover|home|back)/.test(cur.className));
     book.dataset.s = String(f);
     // pe telefon se vede doar pagina curentă (cât se întoarce foaia, se văd amândouă fețele)
     const busy = turning >= 0 && animate && !reduce;
@@ -108,8 +99,6 @@ export function mountCarte(root: HTMLElement) {
     const first = single ? k + 1 : Math.max(1, 2 * f);
     const last = single ? 0 : Math.min(N, 2 * f + 1);
     count.textContent = single || f === 0 || f === L ? `${f === L && !single ? N : first} / ${N}` : `${first}–${last} / ${N}`;
-    prevBtn.disabled = single ? k === 0 : f === 0;
-    nextBtn.disabled = single ? k === N - 1 : f === L;
   };
 
   const go = (dir: 1 | -1) => {
@@ -131,8 +120,6 @@ export function mountCarte(root: HTMLElement) {
     }
   };
 
-  prevBtn.addEventListener('click', () => go(-1));
-  nextBtn.addEventListener('click', () => go(1));
   soundBtn.addEventListener('click', () => {
     sound = !sound;
     soundBtn.setAttribute('aria-pressed', String(sound));
@@ -166,16 +153,6 @@ export function mountCarte(root: HTMLElement) {
     });
   }
 
-  // butonul de pe pagina pe care e mouse-ul se închide la culoare
-  stage.addEventListener('pointermove', (e) => {
-    if (e.pointerType !== 'mouse') return;
-    const r = corners.getBoundingClientRect();
-    const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
-    const left = e.clientX < r.left + r.width / 2;
-    corners.classList.toggle('hot-l', inside && (!spread || left));
-    corners.classList.toggle('hot-r', inside && (!spread || !left));
-  });
-  stage.addEventListener('pointerleave', () => corners.classList.remove('hot-l', 'hot-r'));
 
   // scroll în carte = dai pagina
   let wheelAcc = 0, wheelLock = 0;

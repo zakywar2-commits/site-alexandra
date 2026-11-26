@@ -2,8 +2,6 @@
 // Proiectul ca o broșură răsfoită: pagini duble pe calculator, o pagină pe telefon.
 import type { Proiect, Imagine } from '../data/proiecte';
 import { routes, type Lang } from '../i18n/ui';
-import '@fontsource-variable/fraunces/full.css';
-import '@fontsource-variable/manrope';
 
 interface Props {
   lang: Lang;
@@ -172,10 +170,6 @@ const facts = [
         </div>
       ))}
     </div>
-    <div class="corners" data-corners>
-      <button type="button" class="tri prev" data-prev aria-label={T.prev}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 3 L5 12 L17 21 Z" /></svg></button>
-      <button type="button" class="tri next" data-next aria-label={T.next}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3 L19 12 L7 21 Z" /></svg></button>
-    </div>
   </div>
 
   <div class="controls">
@@ -250,7 +244,6 @@ const facts = [
   .back.k-cover, .back.k-home, .back.k-back { inset: -1.6% 0 -1.6% -2.2%; border-radius: 3px 0 0 3px; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12), -3px 4px 0 0 var(--cover-edge), -5px 7px 0 0 rgb(0 0 0 / 0.07); }
   .k-cover .lbl, .k-home .lbl, .k-home p, .k-cover .cover-band p, .k-back a { color: color-mix(in srgb, var(--cover-ink) 72%, transparent); }
   .k-home .home p, .k-back .back-cover a { color: color-mix(in srgb, var(--cover-ink) 78%, transparent); }
-  .corners.on-cover .tri { color: var(--cover-ink); }
   .open-link { margin-bottom: 2.6em; }
   .frame { position: absolute; inset: 12% 12% 16%; overflow: hidden; box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06); }
   .frame img { width: 100%; height: 100%; object-fit: cover; max-width: none; }
@@ -273,18 +266,6 @@ const facts = [
   .back-cover { justify-content: flex-end; }
   .back-cover a { font-size: 0.85em; color: var(--muted); }
 
-  /* butoanele triunghiulare din colțurile de jos ale paginilor */
-  .corners { position: absolute; left: 50%; top: 50%; width: var(--cw, var(--pw)); height: var(--ph); transform: translate(-50%, -50%); pointer-events: none; z-index: 20; transition: width 0.9s cubic-bezier(0.45, 0.05, 0.25, 1); }
-  .tri { position: absolute; bottom: 2.2%; width: clamp(34px, calc(var(--pw) * 0.085), 52px); aspect-ratio: 1; padding: 0; border: 0; background: none; color: #000; opacity: 0.14; cursor: pointer; pointer-events: auto; transition: opacity 0.35s ease; }
-  .tri svg { width: 100%; height: 100%; fill: currentColor; }
-  .tri.prev { left: 2.5%; }
-  .tri.next { right: 2.5%; }
-  .tri:disabled { visibility: hidden; }
-  .corners.hot-l .prev, .corners.hot-r .next, .tri:focus-visible { opacity: 0.8; }
-  @media (hover: none) {
-    .tri { animation: breathe 10s ease-in-out infinite; }
-    @keyframes breathe { 0%, 100% { opacity: 0.12; } 50% { opacity: 0.7; } }
-  }
   .controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px var(--gutter) 18px; font-size: 14px; }
   .nav { display: flex; align-items: center; gap: 14px; }
   .nav button, .ctl { font: inherit; background: none; border: 0; color: var(--ink); cursor: pointer; padding: 6px 4px; text-decoration: none; }

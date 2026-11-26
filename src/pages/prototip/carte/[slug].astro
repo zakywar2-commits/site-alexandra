@@ -6,7 +6,7 @@ import { withBase } from '../../../i18n/ui';
 export const getStaticPaths = () => proiecte.map((p) => ({ params: { slug: p.slug }, props: { p } }));
 const { p } = Astro.props;
 ---
-<Base lang="ro" title={p.titlu.ro} alt={withBase(`/en/prototype/book/${p.slug}/`)}>
+<Base proto lang="ro" title={p.titlu.ro} alt={withBase(`/en/prototype/book/${p.slug}/`)}>
   <meta slot="head" name="robots" content="noindex" />
   <Carte lang="ro" p={p} shelf={withBase('/prototip/carte/')} />
 </Base>
