@@ -43,6 +43,13 @@ const path = Astro.url.pathname;
       </div>
     </header>
     <main><slot /></main>
+    {proto && (
+      <div class="proba" aria-label="Variante de încercat">
+        <button type="button" data-proba="font">Font</button>
+        <button type="button" data-proba="fundal">Fundal</button>
+      </div>
+      <script is:inline set:html={`(function(){var V={font:[['b','Archivo'],['a','Syne'],['c','Fraunces'],['bodoni','Bodoni']],fundal:[['verde','Verde'],['dark-miami','Dark Miami'],['oliveblack','Oliveblack'],['inkedjapan','Inkedjapan++'],['midnight-vendetta','Midnight V.'],['car-coat','Car Coat']]};var d=document.documentElement;function cur(k){return d.dataset[k]||V[k][0][0];}function label(){document.querySelectorAll('[data-proba]').forEach(function(b){var k=b.dataset.proba,c=cur(k),n=V[k].find(function(x){return x[0]===c;});b.textContent=(k==='font'?'Font: ':'Fundal: ')+(n?n[1]:c)+' →';});}document.querySelectorAll('[data-proba]').forEach(function(b){b.addEventListener('click',function(){var k=b.dataset.proba,l=V[k],i=l.findIndex(function(x){return x[0]===cur(k);});var n=l[(i+1)%l.length][0];d.dataset[k]=n;try{sessionStorage.setItem(k,n);}catch(e){}label();});});label();})();`} />
+    )}
     <footer class="site-footer">
       <div class="wrap bar">
         <span>© {new Date().getFullYear()} {tr('site.name')}. {tr('footer.rights')}</span>

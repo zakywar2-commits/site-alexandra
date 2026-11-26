@@ -32,8 +32,8 @@ body.proto .brand { font-family: var(--f-titlu); font-weight: var(--w-titlu); fo
 body.proto .site-header { background: var(--bar, #1f281b); border-bottom-color: rgb(238 232 218 / 0.12); }
 
 /* fonturi de încercat pe prototip (?font=a|b|c): titlu pronunțat + alt font pentru textele de pe margine */
-body.proto { --f-titlu: 'Syne Variable', sans-serif; --w-titlu: 700; --s-titlu: normal; --ls-titlu: -0.035em; --f-margine: 'Space Mono', monospace; }
-html[data-font='b'] body.proto { --f-titlu: 'Archivo Variable', sans-serif; --w-titlu: 800; --s-titlu: 118%; --ls-titlu: -0.03em; --f-margine: 'DM Mono', monospace; }
+body.proto { --f-titlu: 'Archivo Variable', sans-serif; --w-titlu: 800; --s-titlu: 118%; --ls-titlu: -0.03em; --f-margine: 'DM Mono', monospace; }
+html[data-font='a'] body.proto { --f-titlu: 'Syne Variable', sans-serif; --w-titlu: 700; --s-titlu: normal; --ls-titlu: -0.035em; --f-margine: 'Space Mono', monospace; }
 html[data-font='c'] body.proto { --f-titlu: 'Fraunces Variable', serif; --w-titlu: 700; --s-titlu: normal; --ls-titlu: -0.03em; --f-margine: 'IBM Plex Mono', monospace; }
 html[data-font='bodoni'] body.proto { --f-titlu: 'Bodoni Moda Variable', Didot, serif; --w-titlu: 500; --ls-titlu: -0.02em; --f-margine: 'Manrope Variable', sans-serif; }
 body.proto .band .t { font-family: var(--f-titlu); font-weight: var(--w-titlu); font-stretch: var(--s-titlu); letter-spacing: var(--ls-titlu); }
@@ -59,3 +59,9 @@ body.proto {
   background-attachment: fixed;
 }
 body.proto .site-header { background-color: var(--bar); background-image: var(--tex); background-size: 1600px 1000px; background-blend-mode: overlay; background-attachment: fixed; backdrop-filter: none; }
+
+/* butoanele de încercare (doar pe prototip): font și fundal */
+.proba { position: fixed; z-index: 20; left: 12px; top: 76px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; font-family: var(--f-margine); font-size: 11px; }
+.proba button { font: inherit; color: var(--ink); background: color-mix(in srgb, var(--bar) 85%, transparent); border: 1px solid rgb(238 232 218 / 0.35); padding: 5px 8px; cursor: pointer; letter-spacing: 0.02em; white-space: nowrap; backdrop-filter: blur(6px); }
+.proba button:hover { border-color: rgb(238 232 218 / 0.8); }
+@media (max-width: 760px) { .proba { top: auto; bottom: 50px; left: 50%; transform: translateX(-50%); flex-direction: row; } }
