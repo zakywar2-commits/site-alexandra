@@ -3,12 +3,20 @@
 import type { Proiect, Imagine } from '../data/proiecte';
 import { routes, type Lang } from '../i18n/ui';
 
-interface Props { p: Proiect; lang: Lang; shelf: string }
-const { p, lang, shelf } = Astro.props;
+interface Props {
+  lang: Lang;
+  shelf: string;
+  /** broșura unui proiect */
+  p?: Proiect;
+  /** sau cartea de pe pagina de start: toate proiectele, fiecare cu linkul spre broșura lui */
+  start?: { proiecte: Proiect[]; link: (slug: string) => string };
+}
+const { lang, shelf, start } = Astro.props;
+const p = (Astro.props.p ?? start!.proiecte[0]) as Proiect;
 
 const T = {
-  ro: { prev: 'Pagina anterioară', next: 'Pagina următoare', sound: 'Sunet', on: 'pornit', off: 'oprit', back: 'Toate proiectele', credits: 'Credite', drawings: 'Desene', place: 'Loc', year: 'An', open: 'Deschide broșura', hint: 'Dă pagina cu săgețile, cu un click pe margine sau cu degetul.', full: 'Pagina completă a proiectului' },
-  en: { prev: 'Previous page', next: 'Next page', sound: 'Sound', on: 'on', off: 'off', back: 'All projects', credits: 'Credits', drawings: 'Drawings', place: 'Place', year: 'Year', open: 'Open the brochure', hint: 'Turn the page with the arrow keys, a click on the edge, or a swipe.', full: 'Full project page' },
+  ro: { student: 'Student arhitect la Facultatea „Ion Mincu”', portfolio: 'Portofoliu', openBook: 'Deschide broșura', contact: 'Contact', contactText: 'Pentru colaborări sau întrebări despre proiecte, scrie-mi.', prev: 'Pagina anterioară', next: 'Pagina următoare', sound: 'Sunet', on: 'pornit', off: 'oprit', back: 'Toate proiectele', credits: 'Credite', drawings: 'Desene', place: 'Loc', year: 'An', open: 'Deschide broșura', hint: 'Dă pagina cu săgețile, cu un click pe margine sau cu degetul.', full: 'Pagina completă a proiectului' },
+  en: { student: 'Architecture student at the “Ion Mincu” faculty', portfolio: 'Portfolio', openBook: 'Open the brochure', contact: 'Contact', contactText: 'For collaborations or questions about the projects, write to me.', prev: 'Previous page', next: 'Next page', sound: 'Sound', on: 'on', off: 'off', back: 'All projects', credits: 'Credits', drawings: 'Drawings', place: 'Place', year: 'Year', open: 'Open the brochure', hint: 'Turn the page with the arrow keys, a click on the edge, or a swipe.', full: 'Full project page' },
 }[lang];
 
 const known = (v: string) => !v.includes('[');
@@ -21,10 +29,25 @@ type Page =
   | { kind: 'photo'; img: Imagine }
   | { kind: 'spread'; img: Imagine; half: 0 | 1 }
   | { kind: 'credits' }
+  | { kind: 'home' }
+  | { kind: 'proj'; q: Proiect; nr: number }
+  | { kind: 'contact' }
   | { kind: 'blank' }
   | { kind: 'back' };
 
-const pages: Page[] = [{ kind: 'cover' }, { kind: 'intro' }, { kind: 'photo', img: p.macheta }];
+const pages: Page[] = [];
+if (start) {
+  // pagina de start: imagine–text, apoi text–imagine, alternând
+  pages.push({ kind: 'home' });
+  start.proiecte.forEach((q, i) => {
+    const img: Page = { kind: 'photo', img: q.cover };
+    const txt: Page = { kind: 'proj', q, nr: i + 1 };
+    pages.push(...(i % 2 === 0 ? [img, txt] : [txt, img]));
+  });
+  if (pages.length % 2 === 0) pages.push({ kind: 'contact' });
+  pages.push({ kind: 'back' });
+} else {
+pages.push({ kind: 'cover' }, { kind: 'intro' }, { kind: 'photo', img: p.macheta });
 p.sectiuni.forEach((s, i) => {
   // textul pe stânga, imaginea pe dreapta
   if (pages.length % 2 === 0) pages.push({ kind: 'blank' });
@@ -44,6 +67,7 @@ pages.push({ kind: 'credits' });
 // coperta din spate trebuie să cadă pe verso-ul ultimei foi (index impar)
 if (pages.length % 2 === 0) pages.push({ kind: 'blank' });
 pages.push({ kind: 'back' });
+}
 
 const leaves: [Page, Page][] = [];
 for (let i = 0; i < pages.length; i += 2) leaves.push([pages[i], pages[i + 1]]);
@@ -52,7 +76,7 @@ const facts = [
   { k: T.year, v: p.an },
 ].filter((f) => known(f.v));
 ---
-<section class="carte" data-carte data-lang={lang} aria-roledescription={lang === 'ro' ? 'broșură' : 'brochure'} aria-label={p.titlu[lang]}>
+<section class:list={['carte', { start: !!start }]} data-carte data-lang={lang} data-hover={start ? '' : undefined} aria-roledescription={lang === 'ro' ? 'carte' : 'book'} aria-label={start ? 'Tonciu Alexandra' : p.titlu[lang]}>
   <div class="stage" data-stage>
     <div class="book" data-book data-s="0">
       {leaves.map(([front, back], li) => (
@@ -70,6 +94,28 @@ const facts = [
                       <span class="author">Tonciu Alexandra</span>
                     </div>
                   </>
+                )}
+                {pg.kind === 'home' && (
+                  <div class="pad col home">
+                    <span class="lbl">{T.portfolio}</span>
+                    <h1>Tonciu Alexandra</h1>
+                    <p>{T.student}</p>
+                  </div>
+                )}
+                {pg.kind === 'proj' && (
+                  <div class="pad col">
+                    <span class="lbl">{String(pg.nr).padStart(2, '0')} · {pg.q.stadiu[lang]}</span>
+                    <h2 class="big">{pg.q.titlu[lang]}</h2>
+                    <p class="lead">{pg.q.rezumat[lang]}</p>
+                    <a class="open-link" href={start!.link(pg.q.slug)}>{T.openBook} →</a>
+                  </div>
+                )}
+                {pg.kind === 'contact' && (
+                  <div class="pad col end">
+                    <span class="lbl">{T.contact}</span>
+                    <p>{T.contactText}</p>
+                    <a class="open-link" href={routes[lang].contact}>{T.contact} →</a>
+                  </div>
                 )}
                 {pg.kind === 'intro' && (
                   <div class="pad col">
@@ -112,7 +158,7 @@ const facts = [
                 {pg.kind === 'back' && (
                   <div class="pad col back-cover">
                     <span class="author">Tonciu Alexandra</span>
-                    <a href={shelf} data-nolink>{T.back}</a>
+                    {start ? <a href={routes[lang].contact}>{T.contact}</a> : <a href={shelf} data-nolink>{T.back}</a>}
                   </div>
                 )}
                 {n > 0 && pg.kind !== 'back' && pg.kind !== 'photo' && pg.kind !== 'blank' && <span class="folio">{n}</span>}
@@ -125,7 +171,7 @@ const facts = [
   </div>
 
   <div class="controls">
-    <a class="ctl back" href={shelf}>← {T.back}</a>
+    {start ? <span /> : <a class="ctl back" href={shelf}>← {T.back}</a>}
     <div class="nav">
       <button type="button" data-prev aria-label={T.prev}>←</button>
       <span data-count aria-live="polite">1 / {pages.length}</span>
@@ -134,7 +180,7 @@ const facts = [
     <button type="button" class="ctl" data-sound aria-pressed="false" data-on={T.on} data-off={T.off}>{T.sound}: <span>{T.off}</span></button>
   </div>
   <p class="visually-hidden">{T.hint}</p>
-  <a class="visually-hidden" href={routes[lang].project(p.slug)}>{T.full}</a>
+  {!start && <a class="visually-hidden" href={routes[lang].project(p.slug)}>{T.full}</a>}
 </section>
 
 <script>
@@ -201,6 +247,14 @@ const facts = [
   .cover-band p { color: var(--muted); font-size: 0.85em; margin: 0; }
   .author { font-size: 0.75em; letter-spacing: 0.12em; text-transform: uppercase; margin-top: auto; }
   .k-back { background: #ece7de; }
+  /* pagina de start: o singură copertă, care urcă din josul paginii */
+  .k-home { background: #ece7de; }
+  .home { justify-content: center; gap: 0.7em; padding: 12%; }
+  .home h1 { font-size: 2.5em; line-height: 1.05; }
+  .home p { color: var(--muted); font-size: 0.95em; }
+  .open-link { margin-top: auto; align-self: flex-start; font-size: 0.9em; color: var(--ink); text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+  .start .stage { animation: rise 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14vh); } to { opacity: 1; transform: none; } }
   .back-cover { justify-content: flex-end; }
   .back-cover a { font-size: 0.85em; color: var(--muted); }
 

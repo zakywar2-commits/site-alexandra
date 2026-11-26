@@ -1,0 +1,10 @@
+---
+import Base from '../../../../layouts/Base.astro';
+import Carte from '../../../../components/Carte.astro';
+import { proiecte } from '../../../../data/proiecte';
+import { withBase } from '../../../../i18n/ui';
+---
+<Base lang="en" title="Portfolio (prototype)" alt={withBase('/prototip/start/')}>
+  <meta slot="head" name="robots" content="noindex" />
+  <Carte lang="en" shelf={withBase('/en/prototype/book/')} start={{ proiecte, link: (s) => withBase(`/en/prototype/book/${s}/#deschide`) }} />
+</Base>

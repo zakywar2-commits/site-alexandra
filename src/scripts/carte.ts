@@ -152,6 +152,13 @@ export function mountCarte(root: HTMLElement) {
     go(x < (single ? 0.33 : 0.5) ? -1 : 1);
   });
 
+  // pe pagina de start cartea se deschide singură când treci cu mouse-ul peste copertă
+  if (root.hasAttribute('data-hover')) {
+    book.addEventListener('pointerenter', (e) => {
+      if (e.pointerType === 'mouse' && flippedCount() === 0) go(1);
+    });
+  }
+
   addEventListener('resize', layout);
   layout();
 
