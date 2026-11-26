@@ -29,4 +29,30 @@ body.proto ::selection { background: #eee8da; color: #2b3526; }
 body.proto h1, body.proto h2, body.proto h3, body.proto .serif { font-family: 'Bodoni Moda Variable', Didot, Georgia, serif; font-weight: 500; letter-spacing: -0.02em; }
 body.proto .brand { font-family: 'Bodoni Moda Variable', Didot, Georgia, serif; font-weight: 500; font-size: 20px; }
 @media (max-width: 480px) { body.proto .brand { font-size: 16px; } body.proto .site-header nav { gap: 12px; } }
-body.proto .site-header { background: #1f281b; border-bottom-color: rgb(238 232 218 / 0.12); }
+body.proto .site-header { background: var(--bar, #1f281b); border-bottom-color: rgb(238 232 218 / 0.12); }
+
+/* fundaluri de încercat pe prototip (?fundal=...), cu textură de vopsea udă și uscată (limewash) */
+html[data-fundal='dark-miami'] body.proto { --bg: #3a1828; --pata: #52213f; --umbra: #24101a; --bar: #220e18; }
+html[data-fundal='oliveblack'] body.proto { --bg: #2a2a1f; --pata: #3c3b2a; --umbra: #1a1a12; --bar: #191910; }
+html[data-fundal='inkedjapan'] body.proto { --bg: #151a22; --pata: #1f2a3a; --umbra: #0b0e14; --bar: #0a0d12; }
+html[data-fundal='midnight-vendetta'] body.proto { --bg: #2e1b2c; --pata: #44283f; --umbra: #1c101b; --bar: #1a0f19; }
+html[data-fundal='car-coat'] body.proto { --bg: #4a3e34; --pata: #5e4f41; --umbra: #30281f; --bar: #2c241d; }
+html[data-fundal] body.proto {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(ellipse 55% 40% at 18% 22%, color-mix(in srgb, var(--pata) 85%, transparent), transparent 70%),
+    radial-gradient(ellipse 45% 55% at 82% 30%, color-mix(in srgb, var(--umbra) 80%, transparent), transparent 70%),
+    radial-gradient(ellipse 60% 45% at 70% 85%, color-mix(in srgb, var(--pata) 70%, transparent), transparent 70%),
+    radial-gradient(ellipse 50% 50% at 10% 80%, color-mix(in srgb, var(--umbra) 70%, transparent), transparent 70%);
+  background-attachment: fixed;
+}
+/* petele de var (uscat) și un luciu slab, în diagonală (ud) */
+html[data-fundal] body.proto::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000' preserveAspectRatio='none'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='5' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1.2 -0.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.5'/%3E%3C/svg%3E"), linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.045) 45%, transparent 60%);
+  background-size: 100% 100%, 220px 220px, 100% 100%; background-repeat: no-repeat, repeat, no-repeat;
+  mix-blend-mode: soft-light; opacity: 0.85;
+}
+html[data-fundal] body.proto > * { position: relative; z-index: 1; }
+html[data-fundal] body.proto > .site-header { position: sticky; z-index: 10; }
+
