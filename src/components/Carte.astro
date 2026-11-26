@@ -1,6 +1,6 @@
 ---
 // Proiectul ca o broșură răsfoită: pagini duble pe calculator, o pagină pe telefon.
-import { srcset, type Proiect, type Imagine } from '../data/proiecte';
+import { srcset, type Proiect, type Imagine, type Film } from '../data/proiecte';
 import { routes, type Lang } from '../i18n/ui';
 
 interface Props {
@@ -28,7 +28,7 @@ type Page =
   | { kind: 'image'; img: Imagine; desen: boolean }
   | { kind: 'photo'; img: Imagine; frame?: boolean; titlu?: string; seasons?: Imagine[] }
   | { kind: 'spread'; img: Imagine; half: 0 | 1; bleed?: boolean }
-  | { kind: 'video' }
+  | { kind: 'video'; film: Film }
   | { kind: 'credits' }
   | { kind: 'home' }
   | { kind: 'proj'; q: Proiect; nr: number }
@@ -49,7 +49,8 @@ if (start) {
   pages.push({ kind: 'back' });
 } else {
 // cu film: filmul stă lângă introducere, iar imaginea principală trece între fotografii
-pages.push({ kind: 'cover' }, { kind: 'intro' }, p.video ? { kind: 'video' } : { kind: 'photo', img: p.macheta });
+const filme = p.filme ?? [];
+pages.push({ kind: 'cover' }, { kind: 'intro' }, filme[0] ? { kind: 'video', film: filme[0] } : { kind: 'photo', img: p.macheta });
 p.sectiuni.forEach((s, i) => {
   // textul pe stânga, imaginea pe dreapta
   if (pages.length % 2 === 0) pages.push({ kind: 'blank' });
@@ -64,7 +65,9 @@ for (const d of p.desene) {
     pages.push({ kind: 'spread', img: d, half: 0 }, { kind: 'spread', img: d, half: 1 });
   } else pages.push({ kind: 'image', img: d, desen: true });
 }
-for (const g of p.video ? [p.macheta, ...p.galerie] : p.galerie) {
+// celelalte filme vin după desene, două câte două
+for (const film of filme.slice(1)) pages.push({ kind: 'video', film });
+for (const g of filme[0] ? [p.macheta, ...p.galerie] : p.galerie) {
   // fotografiile late se întind peste pagina dublă, până la margine
   if (g.w / g.h > 1.45) {
     if (pages.length % 2 === 0) pages.push({ kind: 'blank' });
@@ -170,10 +173,10 @@ const facts = [
                 ) : (
                   <img class="bleed" {...ia(pg.img, li)} width={pg.img.w} height={pg.img.h} alt={pg.img.alt[lang]} decoding="async" />
                 ))}
-                {pg.kind === 'video' && p.video && (
+                {pg.kind === 'video' && (
                   <figure class="pad fig">
-                    <div class="fit"><video data-src={p.video.src} poster={p.video.poster} width={p.video.w} height={p.video.h} muted loop playsinline preload="none" aria-label={p.video.alt[lang]}></video></div>
-                    <figcaption>{p.video.alt[lang]}</figcaption>
+                    <div class="fit"><video data-src={pg.film.src} data-poster={pg.film.poster} width={pg.film.w} height={pg.film.h} muted loop playsinline preload="none" aria-label={pg.film.alt[lang]}></video></div>
+                    <figcaption>{pg.film.alt[lang]}</figcaption>
                   </figure>
                 )}
                 {pg.kind === 'credits' && (

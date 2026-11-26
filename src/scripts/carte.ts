@@ -75,7 +75,10 @@ export function mountCarte(root: HTMLElement) {
         if (el instanceof HTMLImageElement && el.dataset.srcset) el.srcset = el.dataset.srcset;
         el.src = el.dataset.src!;
         el.removeAttribute('data-src');
-        if (el instanceof HTMLVideoElement && !reduce) { el.autoplay = true; el.play().catch(() => {}); }
+        if (el instanceof HTMLVideoElement) {
+          if (el.dataset.poster) el.poster = el.dataset.poster;
+          if (!reduce) { el.autoplay = true; el.play().catch(() => {}); }
+        }
       });
     }
   };
