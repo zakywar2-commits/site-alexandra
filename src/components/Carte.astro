@@ -235,7 +235,7 @@ const facts = [
 </script>
 
 <style>
-  .carte { --cover: #8a3b2b; --cover-edge: #5e2519; --cover-ink: #f4ead9; font-family: 'Manrope Variable', var(--font); font-weight: 500; --paper: #fbfaf6; --paper-edge: #e9e4da; --pw: 400px; --ph: 533px; display: flex; flex-direction: column; height: calc(100svh - 64px); min-height: 480px; user-select: none; -webkit-user-select: none; }
+  .carte { --cover: #e3d8c2; --cover-edge: #b5a68a; --cover-ink: #26301f; font-family: 'Manrope Variable', var(--font); font-weight: 500; --paper: #fbfaf6; --paper-edge: #e9e4da; --pw: 400px; --ph: 533px; display: flex; flex-direction: column; height: calc(100svh - 64px); min-height: 480px; user-select: none; -webkit-user-select: none; }
   .stage { flex: 1; position: relative; overflow: hidden; perspective: 2600px; touch-action: pan-y; }
   .book { position: absolute; left: 50%; top: 50%; margin: calc(var(--ph) / -2) 0 0 calc(var(--pw) * -1); width: calc(var(--pw) * 2); height: var(--ph); transform-style: preserve-3d; transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.25, 1); cursor: pointer; }
   .leaf { position: absolute; left: 50%; top: 0; width: 50%; height: 100%; transform-origin: left center; transform-style: preserve-3d; transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.25, 1); }
@@ -259,13 +259,13 @@ const facts = [
   /* titlu de revistă: plin pe hârtie, doar contur unde trece peste imagine */
   .mag { position: absolute; margin: 0; font-size: 3em; line-height: 0.98; z-index: 1; }
   .mag.solid { color: var(--ink); }
-  .mag.outline { color: transparent; -webkit-text-stroke: 1.1px #fff; z-index: 2; }
+  .mag.outline { color: #fbf8f1; text-shadow: 0 1px 14px rgb(0 0 0 / 0.22); z-index: 2; }
   /* ultimul rând al titlului stă pe marginea imaginii: jumătate contur, jumătate plin */
   .k-photo .mag.solid { left: 8%; width: 84%; bottom: calc(14% - 0.5em); }
   .k-photo .mag.outline { left: -5.263%; width: 110.53%; bottom: -0.5em; }
   .k-cover .mag { font-size: 3.4em; }
   .k-cover .mag.solid { left: 9%; width: 82%; bottom: calc(26% - 0.5em); color: var(--cover-ink); }
-  .k-cover .mag.outline { left: 9%; width: 82%; bottom: -0.5em; -webkit-text-stroke-color: var(--cover-ink); }
+  .k-cover .mag.outline { left: 9%; width: 82%; bottom: -0.5em; }
   .k-cover .cover-band { padding-top: 9%; }
   .face h2 { font-size: 1.45em; }
   .face h2.big { font-size: 2.1em; margin-bottom: 0.3em; }

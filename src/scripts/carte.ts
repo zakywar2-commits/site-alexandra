@@ -4,28 +4,38 @@
 const RATIO = 0.74; // lățime / înălțime pentru o pagină
 const DUR = 900;
 
-/** foșnet scurt de hârtie, făcut din zgomot filtrat; pornește doar dacă îl alegi */
+/** foșnet de hârtie, încet și de fiecare dată puțin altfel; pornește doar dacă îl alegi */
 function paperSound() {
   let ctx: AudioContext | undefined;
+  const rnd = (a: number, b: number) => a + Math.random() * (b - a);
   return () => {
     ctx ??= new AudioContext();
-    const len = 0.42;
+    const len = rnd(0.3, 0.6);
+    const peak = rnd(0.2, 0.6); // unde e foșnetul cel mai tare în timpul întoarcerii
+    const grain = rnd(0.25, 0.6); // cât de „aspră” e hârtia
     const buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * len), ctx.sampleRate);
     const d = buf.getChannelData(0);
+    // uneori foaia mai atinge o dată pagina la final
+    const flick = Math.random() < 0.4 ? rnd(0.75, 0.92) : -1;
     for (let i = 0; i < d.length; i++) {
       const t = i / d.length;
-      const env = Math.pow(Math.sin(Math.PI * Math.min(1, t * 1.15)), 1.6) * (0.55 + 0.45 * Math.random());
+      const shape = t < peak ? t / peak : (1 - t) / (1 - peak);
+      let env = Math.pow(Math.max(0, shape), 1.4) * (1 - grain + grain * Math.random());
+      if (flick > 0) env += 0.5 * Math.exp(-Math.pow((t - flick) * 28, 2));
       d[i] = (Math.random() * 2 - 1) * env;
     }
+    const now = ctx.currentTime;
     const src = ctx.createBufferSource();
     src.buffer = buf;
+    src.playbackRate.value = rnd(0.85, 1.15);
     const bp = ctx.createBiquadFilter();
     bp.type = 'bandpass';
-    bp.frequency.setValueAtTime(1800, ctx.currentTime);
-    bp.frequency.linearRampToValueAtTime(3800, ctx.currentTime + len);
-    bp.Q.value = 0.7;
+    const f0 = rnd(1200, 2400);
+    bp.frequency.setValueAtTime(f0, now);
+    bp.frequency.linearRampToValueAtTime(f0 * rnd(1.4, 2.4), now + len);
+    bp.Q.value = rnd(0.5, 1.1);
     const g = ctx.createGain();
-    g.gain.value = 0.22;
+    g.gain.value = rnd(0.06, 0.1);
     src.connect(bp).connect(g).connect(ctx.destination);
     src.start();
   };
