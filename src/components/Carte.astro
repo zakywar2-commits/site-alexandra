@@ -102,7 +102,7 @@ const facts = [
   { k: T.year, v: p.an },
 ].filter((f) => known(f.v));
 ---
-<section class:list={['carte', { start: !!start }]} data-carte data-titlu="piersica" data-lang={lang} data-hover={start ? '' : undefined} aria-roledescription={lang === 'ro' ? 'carte' : 'book'} aria-label={start ? 'Tonciu Alexandra' : p.titlu[lang]}>
+<section class:list={['carte', { start: !!start }]} data-carte data-titlu="verde" data-lang={lang} data-hover={start ? '' : undefined} aria-roledescription={lang === 'ro' ? 'carte' : 'book'} aria-label={start ? 'Tonciu Alexandra' : p.titlu[lang]}>
   <div class="stage" data-stage>
     <div class="book" data-book data-s="0">
       {leaves.map(([front, back], li) => (
