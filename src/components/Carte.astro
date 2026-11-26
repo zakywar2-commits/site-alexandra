@@ -34,6 +34,7 @@ type Page =
   | { kind: 'proj'; q: Proiect; nr: number }
   | { kind: 'contact' }
   | { kind: 'blank' }
+  | { kind: 'note' }
   | { kind: 'back' };
 
 const pages: Page[] = [];
@@ -53,30 +54,30 @@ const filme = p.filme ?? [];
 pages.push({ kind: 'cover' }, { kind: 'intro' }, filme[0] ? { kind: 'video', film: filme[0] } : { kind: 'photo', img: p.macheta });
 p.sectiuni.forEach((s, i) => {
   // textul pe stânga, imaginea pe dreapta
-  if (pages.length % 2 === 0) pages.push({ kind: 'blank' });
+  if (pages.length % 2 === 0) pages.push({ kind: 'note' });
   pages.push({ kind: 'text', nr: i + 1, titlu: s.titlu[lang], text: s.text[lang] });
   pages.push(s.desen ? { kind: 'image', img: s.imagine, desen: true } : { kind: 'photo', img: s.imagine });
 });
-// desenele late se întind pe două pagini, ca într-o broșură tipărită
-const WIDE = 1.25;
-for (const d of p.desene) {
-  if (d.w / d.h > WIDE) {
-    if (pages.length % 2 === 0) pages.push({ kind: 'blank' });
-    pages.push({ kind: 'spread', img: d, half: 0 }, { kind: 'spread', img: d, half: 1 });
-  } else pages.push({ kind: 'image', img: d, desen: true });
-}
-// celelalte filme vin după desene, două câte două
-for (const film of filme.slice(1)) pages.push({ kind: 'video', film });
-for (const g of filme[0] ? [p.macheta, ...p.galerie] : p.galerie) {
-  // fotografiile late se întind peste pagina dublă, până la margine
-  if (g.w / g.h > 1.45) {
-    if (pages.length % 2 === 0) pages.push({ kind: 'blank' });
-    pages.push({ kind: 'spread', img: g, half: 0, bleed: true }, { kind: 'spread', img: g, half: 1, bleed: true });
-  } else pages.push({ kind: 'photo', img: g });
+// desenele și fotografiile late se întind pe două pagini, ca într-o broșură tipărită.
+// O pagină dublă începe pe stânga; dacă locul liber e pe dreapta, aducem în față o imagine simplă,
+// iar dacă nu mai e niciuna, punem o pagină cu text (legenda imaginii de alături), nu o pagină goală.
+const items: Page[][] = [];
+for (const d of p.desene)
+  items.push(d.w / d.h > 1.25 ? [{ kind: 'spread', img: d, half: 0 }, { kind: 'spread', img: d, half: 1 }] : [{ kind: 'image', img: d, desen: true }]);
+for (const film of filme.slice(1)) items.push([{ kind: 'video', film }]);
+for (const g of filme[0] ? [p.macheta, ...p.galerie] : p.galerie)
+  items.push(g.w / g.h > 1.45 ? [{ kind: 'spread', img: g, half: 0, bleed: true }, { kind: 'spread', img: g, half: 1, bleed: true }] : [{ kind: 'photo', img: g }]);
+while (items.length) {
+  let i = 0;
+  if (pages.length % 2 === 0 && items[0].length === 2) {
+    i = items.findIndex((it) => it.length === 1);
+    if (i < 0) { pages.push({ kind: 'note' }); continue; }
+  }
+  pages.push(...items.splice(i, 1)[0]);
 }
 pages.push({ kind: 'credits' });
 // coperta din spate trebuie să cadă pe verso-ul ultimei foi (index impar)
-if (pages.length % 2 === 0) pages.push({ kind: 'blank' });
+if (pages.length % 2 === 0) pages.push({ kind: 'note' });
 pages.push({ kind: 'back' });
 }
 
@@ -84,6 +85,16 @@ pages.push({ kind: 'back' });
 const PAGE = '(max-width: 760px) 92vw, 45vw', WIDE_S = '(max-width: 760px) 92vw, 90vw', FRAME = '(max-width: 760px) 70vw, 34vw';
 const ia = (im: Imagine, li: number, sizes = PAGE) =>
   li <= 1 ? { src: im.src, srcset: srcset(im.src), sizes } : { 'data-src': im.src, 'data-srcset': srcset(im.src), sizes };
+/** pagina cu text de lângă o ilustrație: un text mai lung din planșe, altfel legenda imaginii și rezumatul */
+let noteNr = 0;
+const noteFor = (n: number): { lbl: string; titlu: string; text: string } => {
+  const q = pages[n - 1];
+  const cap = q?.kind === 'video' ? q.film.alt[lang]
+    : q && (q.kind === 'image' || q.kind === 'photo' || q.kind === 'spread') ? (q.img.legenda ?? q.img.alt)[lang] : undefined;
+  const t = p.note?.[noteNr++];
+  if (t) return { lbl: p.titlu[lang], titlu: t.titlu[lang], text: t.text[lang] };
+  return { lbl: cap ? p.titlu[lang] : p.stadiu[lang], titlu: cap ?? p.titlu[lang], text: p.rezumat[lang] };
+};
 const leaves: [Page, Page][] = [];
 for (let i = 0; i < pages.length; i += 2) leaves.push([pages[i], pages[i + 1]]);
 const facts = [
@@ -99,7 +110,7 @@ const facts = [
           {[front, back].map((pg, side) => {
             const n = li * 2 + side;
             return (
-              <div class:list={['face', side ? 'back' : 'front', `k-${pg.kind}`]} data-page={n} data-skip={(pg.kind === 'spread' && pg.half === 1) || pg.kind === 'blank' ? '' : undefined}>
+              <div class:list={['face', side ? 'back' : 'front', `k-${pg.kind}`]} data-page={n} data-skip={(pg.kind === 'spread' && pg.half === 1) || pg.kind === 'blank' || pg.kind === 'note' ? '' : undefined}>
                 {pg.kind === 'cover' && (
                   <>
                     <h1 class="mag solid">{p.titlu[lang]}</h1>
@@ -179,6 +190,13 @@ const facts = [
                     <figcaption>{pg.film.alt[lang]}</figcaption>
                   </figure>
                 )}
+                {pg.kind === 'note' && (() => { const t = noteFor(n); return (
+                  <div class="pad col note">
+                    <span class="lbl">{t.lbl}</span>
+                    <h2>{t.titlu}</h2>
+                    <p class:list={['note-m', { long: t.text.length > 600 }]}>{t.text}</p>
+                  </div>
+                ); })()}
                 {pg.kind === 'credits' && (
                   <div class="pad col end">
                     <span class="lbl">{T.credits}</span>
@@ -222,7 +240,7 @@ const facts = [
   .book { position: absolute; left: 50%; top: 50%; margin: calc(var(--ph) / -2) 0 0 calc(var(--pw) * -1); width: calc(var(--pw) * 2); height: var(--ph); transform-style: preserve-3d; transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.25, 1); cursor: pointer; }
   .leaf { position: absolute; left: 50%; top: 0; width: 50%; height: 100%; transform-origin: left center; transform-style: preserve-3d; transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.25, 1); }
   .leaf.flipped { transform: rotateY(-180deg); }
-  .face { position: absolute; inset: 0; background: var(--paper); backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; font-size: calc(var(--pw) * 0.034); line-height: 1.5; }
+  .face { --ink: #1d1c1a; --muted: #6d6a64; --line: #d6d1c8; color: var(--ink); position: absolute; inset: 0; background: var(--paper); backface-visibility: hidden; -webkit-backface-visibility: hidden; overflow: hidden; font-size: calc(var(--pw) * 0.034); line-height: 1.5; }
   .face.back { transform: rotateY(180deg); }
   /* umbra de lângă cotor, ca la hârtie */
   .face.front::before, .face.back::before { content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2; }
@@ -262,6 +280,9 @@ const facts = [
   .fit { flex: 1; min-height: 0; position: relative; }
   .fit img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; object-fit: contain; }
   figcaption { font-size: 0.8em; color: var(--muted); }
+  .note { justify-content: safe center; }
+  .note-m { font-size: 1.08em; line-height: 1.6; }
+  .note-m.long { font-size: 0.8em; line-height: 1.5; hyphens: auto; }
   .bleed { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; max-width: none; }
   .folio { position: absolute; bottom: 4.5%; font-size: 0.72em; color: var(--muted); z-index: 1; }
   .front .folio { right: 7%; }

@@ -23,5 +23,9 @@ h1, h2, h3 { font-weight: 500; letter-spacing: -0.01em; line-height: 1.15; margi
 
 /* fonturile noi, deocamdată doar pe paginile de prototip */
 body.proto { font-family: 'Manrope Variable', var(--font); font-weight: 500; }
+/* prototip: fundal verde închis, cald (Razvan, 2026-11-26); textele de pe fundal devin deschise */
+body.proto { --bg: #2b3526; --ink: #eee8da; --muted: #b8b6a5; --line: rgb(238 232 218 / 0.2); }
+body.proto ::selection { background: #eee8da; color: #2b3526; }
 body.proto h1, body.proto h2, body.proto h3, body.proto .serif { font-family: 'Bodoni Moda Variable', Didot, Georgia, serif; font-weight: 500; letter-spacing: -0.02em; }
 body.proto .brand { font-family: 'Bodoni Moda Variable', Didot, Georgia, serif; font-weight: 500; font-size: 20px; }
+@media (max-width: 480px) { body.proto .brand { font-size: 16px; } body.proto .site-header nav { gap: 12px; } }

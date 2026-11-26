@@ -49,6 +49,8 @@ export interface Proiect {
   anotimpuri?: Imagine[];
   /** filme scurte; fiecare are pagina lui în broșură (primul stă lângă introducere) */
   filme?: Film[];
+  /** texte mai lungi, din planșe, pentru paginile de lângă ilustrațiile care altfel ar rămâne goale */
+  note?: { titlu: L; text: L }[];
 }
 
 const DE_COMPLETAT: L = { ro: '[de completat]', en: '[to be added]' };
@@ -295,6 +297,22 @@ const cerdac: Proiect = {
     F('film-gradina', 1280, 720, 'Prin grădină, sub pergolă', 'Through the garden, under the pergola'),
     F('film-interior', 1280, 720, 'Interiorul, de la zi la noapte', 'The interior, from day to night'),
   ],
+  note: [
+    {
+      titlu: { ro: 'Catalog de filtre', en: 'A catalogue of filters' },
+      text: {
+        ro: 'Tipuri de filtre ce fac trecerea de la spațiul public la cel privat sau care au un aport asupra atmosferei create: filtre vegetale, filtre vizuale materializate, filtre vitrate ce permit doar o anumită lumină controlată să pătrundă în casă.',
+        en: 'Kinds of filters that make the passage from public to private space, or that shape the atmosphere: planted filters, built visual screens, and glazed filters that let only a certain, controlled light into the house.',
+      },
+    },
+    {
+      titlu: { ro: 'Catalog de texturi', en: 'A catalogue of textures' },
+      text: {
+        ro: 'Tipuri de texturi întâlnite ce reușesc să transpună fizic efecte senzoriale la nivelul trecătorilor: texturi ce se fac remarcate prin rugozitatea exagerată și umbrele pe care le provoacă, texturi fine ce exprimă delicatețe și eleganță, texturi ce ordonează prin geometrizarea lor și texturi naturale ce reflectă dezorganizarea specifică faunei lăsate libere să se dezvolte.',
+        en: 'Textures found in the area that turn sensory effects into something passers-by can feel: textures that stand out through their exaggerated roughness and the shadows they cast, fine textures that speak of delicacy and elegance, textures that bring order through their geometry, and natural textures that reflect the looseness of wildlife left free to grow.',
+      },
+    },
+  ],
   sectiuni: [
     {
       titlu: { ro: 'Filtrul și textura', en: 'Filter and texture' },
@@ -381,8 +399,130 @@ const cerdac: Proiect = {
   ],
 };
 
+// Curtea cu fațade rabătute (2026-11-26): proiect de echipă, textele sunt preluate din planșe (planșa de sinteză).
+const cf = imgDin('curtea-cu-fatade-rabatute');
+const CR = (nume: string, w: number, h: number, ro: string, en: string) => cf(nume, w, h, { ro, en });
+const CP = (nume: string, ro: string, en: string, h = 1691) => cf(nume, 2400, h, { ro, en }, { ro, en });
+const CF = (nume: string, ro: string, en: string): Film => ({
+  src: withBase(`/images/curtea-cu-fatade-rabatute/${nume}.mp4`), poster: withBase(`/images/curtea-cu-fatade-rabatute/${nume}.webp`), w: 1080, h: 1080, alt: { ro, en },
+});
+const curtea: Proiect = {
+  slug: 'curtea-cu-fatade-rabatute',
+  titlu: { ro: 'Curtea cu fațade rabătute', en: 'The Courtyard of Folded-Down Façades' },
+  loc: { ro: 'Strada Pictor Ștefan Luchian, București', en: 'Pictor Ștefan Luchian Street, Bucharest' },
+  an: '[de completat]',
+  stadiu: { ro: 'Co-locuirea a 9 familii · proiect de echipă', en: 'Nine families living together · team project' },
+  categorie: 'locuinte',
+  rezumat: {
+    ro: 'Nouă familii pe o parcelă îngustă din centrul Bucureștiului: o bară de apartamente, trei case pe calcan și o clădire publică la stradă, legate de două curți comune. Nucul devine reperul primei curți, iar a doua, din spate, e a copiilor.',
+    en: 'Nine families on a narrow plot in central Bucharest: a bar of flats, three houses against the party wall and a public building on the street, tied together by two shared courtyards. The walnut tree marks the first courtyard; the second, at the back, belongs to the children.',
+  },
+  cover: CR('curtea-nuc-1', 2400, 1348, 'Curtea cu nuc', 'The walnut courtyard'),
+  macheta: CR('strada', 2400, 1332, 'Perspectiva de pe strada Pictor Ștefan Luchian', 'View from Pictor Ștefan Luchian Street'),
+  note: [
+    {
+      titlu: { ro: 'Curți împărțite, fragmentate în fâșii', en: 'Divided courtyards, split into strips' },
+      text: {
+        ro: 'Când vine vorba de curțile împărțite din apropierea parcelei, se observă majoritar curți cu acces lateral, ce formează pe acest traseu de acces către fiecare locuință lungi fâșii de curte. În aceste fâșii apar spații comune, în unele cazuri strict din nevoie, iar în alte cazuri accentuând sentimentul de comunitate din acea curte ce aparține mai multor familii. De asemenea, aceste fâșii, spre deosebire de curțile de la fațadă, permit privirea în adâncimea parcelei, chiar și după aceasta. Astfel se formează aceste tuneluri vizuale, mărginite de planuri verticale decoplanare, retrageri, avansări sau chiar planuri continue, precum calcanele lungi ce te conduc până în capătul curții. Concluzionând, putem înțelege situația în care o curte împărțită își poate forma propriile fâșii doar într-o mică măsură, casa poziționată lângă accesul principal fiind cea mai expusă mișcării zilnice a locatarilor. Mai înțelegem că aceste curți au funcționat cu aproximativ 100 mp per familie, dar și cu o căutare subconștientă de a putea traversa cu privirea țesutul dens construit.',
+        en: 'Among the divided courtyards near the plot, most are reached from the side, and along this path to each home they form long strips of yard. Shared spaces appear in these strips, in some cases strictly out of need, in others heightening the sense of community in a yard that belongs to several families. Unlike front yards, these strips also let the eye travel deep into the plot and even beyond it. They form visual tunnels, edged by staggered vertical planes, set-backs and projections, or by continuous planes such as the long party walls that lead you to the far end of the yard. In short, a divided courtyard can form its own strips only to a small extent, and the house next to the main entrance is the one most exposed to the residents’ daily comings and goings. These yards worked with roughly 100 m² per family, and with an unspoken wish to see through the dense built fabric.',
+      },
+    },
+  ],
+  filme: [
+    CF('film-concept', 'Conceptul: volumele se așază în jurul curților', 'The concept: the volumes settle around the courtyards'),
+    CF('film-insorire', 'Studiu de însorire', 'Sunlight study'),
+  ],
+  sectiuni: [
+    {
+      titlu: { ro: 'Curțile, mai mult decât funcționale', en: 'Courtyards, more than functional' },
+      text: {
+        ro: 'Analiza curților din zona de studiu evidențiază potențialul acestora de a depăși rolul strict funcțional și de a deveni spații atractive de socializare. Proiectul își propune transformarea curților comune în puncte de interes, capabile să atragă și să încurajeze petrecerea timpului în aer liber.',
+        en: 'The analysis of the courtyards in the area shows their potential to go beyond a strictly functional role and become inviting places to meet. The project sets out to turn the shared courtyards into places of interest that draw people in and encourage them to spend time outdoors.',
+      },
+      imagine: CP('analiza-curti', 'Curți împărțite, fragmentate în fâșii', 'Divided courtyards, split into strips', 1668),
+      desen: true,
+    },
+    {
+      titlu: { ro: 'Trei zone construite', en: 'Three built zones' },
+      text: {
+        ro: 'Se investighează modul de dispunere a volumelor pentru a asigura orientare eficientă, funcționalitate și continuitate vizuală. Rezultă trei zone construite: o bară de apartamente, trei case pe calcan și o clădire publică la stradă, cu rol de interfață.',
+        en: 'The placing of the volumes is studied for good orientation, function and visual continuity. Three built zones result: a bar of flats, three houses against the party wall and a public building on the street, acting as an interface.',
+      },
+      imagine: CP('plan-parter', 'Plan parter', 'Ground floor plan'),
+      desen: true,
+    },
+    {
+      titlu: { ro: 'Nucul', en: 'The walnut tree' },
+      text: {
+        ro: 'Permeabilitatea vizuală este păstrată și amplificată, creând conexiuni între stradă și interiorul ansamblului, iar nucul devine reper și element central al primei curți.',
+        en: 'Views through the site are kept and opened up, linking the street with the heart of the ensemble, and the walnut tree becomes the landmark and centre of the first courtyard.',
+      },
+      imagine: CR('curtea-nuc-2', 2400, 1348, 'Curtea cu nuc, spre bară', 'The walnut courtyard, towards the bar of flats'),
+    },
+    {
+      titlu: { ro: 'A doua curte, a copiilor', en: 'The second courtyard, for children' },
+      text: {
+        ro: 'Organizarea volumelor susține această intenție: clădirea publică de la stradă ca interfață și invitație către interior, a doua curte comună, din spate, dedicată copiilor, fiind o zonă retrasă și protejată.',
+        en: 'The arrangement of the volumes supports this: the public building on the street acts as an interface and an invitation inside, while the second shared courtyard, at the back, is given to the children as a quiet, sheltered place.',
+      },
+      imagine: CR('loc-de-joaca', 2400, 1348, 'Locul de joacă', 'The playground'),
+    },
+    {
+      titlu: { ro: 'Public, semi-public, privat', en: 'Public, semi-public, private' },
+      text: {
+        ro: 'Locuințele sunt completate de curți private, dar relația cu curțile comune rămâne esențială, acestea fiind traversate și utilizate zilnic. Astfel, proiectul propune o ierarhie clară între public, semi-public și privat, în care curțile comune devin nuclee de viață comunitară și spații în care oamenii își doresc să petreacă timp.',
+        en: 'Each home has its own private yard, but the bond with the shared courtyards stays essential, as they are crossed and used every day. The project sets out a clear hierarchy of public, semi-public and private, in which the shared courtyards become hubs of community life and places where people want to spend time.',
+      },
+      imagine: CR('traseu-1', 2400, 1349, 'Traseul prin ansamblu', 'The path through the ensemble'),
+    },
+  ],
+  desene: [
+    CP('coperta', 'Curtea cu fațade rabătute, planul ansamblului', 'The Courtyard of Folded-Down Façades, plan of the ensemble'),
+    CP('analiza', 'Negocierea spațiului comun către tipologii diferite; fragmentare și permeabilitate', 'Negotiating shared space between different types; fragmentation and permeability'),
+    CP('mansarde', 'Mansarde bucureștene', 'Bucharest mansard roofs'),
+    CP('axonometrie', 'Axonometria ansamblului', 'Axonometric view of the ensemble'),
+    CP('diagrame', 'Adaptare la mediu și context urban', 'Responding to climate and urban context'),
+    CP('plan-situatie-500', 'Plan de situație 1:500', 'Site plan 1:500'),
+    CP('plan-situatie-200', 'Plan de situație 1:200', 'Site plan 1:200'),
+    CP('plan-subsol', 'Plan subsol', 'Basement plan'),
+    CP('plan-etaj-1', 'Plan etaj 1', 'First floor plan'),
+    CP('plan-etaj-2', 'Plan etaj 2', 'Second floor plan'),
+    CP('plan-terasa', 'Plan terasă', 'Roof plan'),
+    CP('variatii-public', 'Flexibilitatea spațiului public propus', 'Flexibility of the proposed public space'),
+    CP('vegetatie', 'Vegetație', 'Planting', 1671),
+    CP('sectiune-case', 'Secțiune longitudinală spre case', 'Long section towards the houses'),
+    CP('sectiune-bloc', 'Secțiune longitudinală spre bloc', 'Long section towards the block'),
+    CP('sectiune-scurta', 'Secțiune prin curtea cu nuc', 'Section through the walnut courtyard'),
+    CP('fatada-strada', 'Fațadă stradă', 'Street elevation'),
+    CP('fatada-servitute', 'Fațadă spre strada de servitute', 'Elevation to the service lane'),
+    CP('travee', 'Travee', 'A bay of the building'),
+    CP('plan-detaliu', 'Plan apartament 1:50', 'Flat plan 1:50'),
+    CP('sectiune-detaliu', 'Secțiune AA’', 'Section AA’'),
+    CP('fatada-detaliu', 'Fațadă sud', 'South elevation'),
+    CP('detaliu-jardiniera', 'Detaliu jardinieră metalică', 'Detail of the metal planter'),
+    CP('flexibilitate', 'Flexibilitatea ansamblului', 'Flexibility of the ensemble'),
+    CP('sinteza', 'Planșa de sinteză: co-locuire a 9 familii', 'Summary board: nine families living together'),
+  ],
+  galerie: [
+    CR('calcan-1', 1824, 1824, 'Diferitele ipostaze ale calcanului', 'The party wall in its different guises'),
+    CR('calcan-2', 1835, 1834, 'Calcanul, ca ecran de proiecție', 'The party wall as a projection screen'),
+    CR('calcan-3', 1824, 1824, 'Calcanul, acoperit de vegetație', 'The party wall, covered in planting'),
+    CR('atelier-1', 1835, 1834, 'Scenariu de utilizare: atelier de creație', 'Use scenario: a creative workshop'),
+    CR('atelier-2', 1835, 1835, 'Atelierul de creație în curte', 'The creative workshop in the courtyard'),
+    CR('atelier-3', 1835, 1835, 'Calcanul pictat', 'The painted party wall'),
+    CR('interior-1', 1890, 1884, 'Imagine interioară', 'Interior view'),
+    CR('interior-2', 1898, 1877, 'Imagine interioară, spre curte', 'Interior view towards the courtyard'),
+    CR('interior-3', 1843, 1878, 'Imagine interioară, spre curtea privată', 'Interior view towards the private yard'),
+  ],
+  credite: [
+    { rol: { ro: 'Autori', en: 'Authors' }, nume: 'stud. arh. Mocanu Oana Ștefania, stud. arh. Tonciu Alexandra' },
+    { rol: { ro: 'Atelier', en: 'Studio' }, nume: 'Atelier 22' },
+    { rol: { ro: 'Îndrumători', en: 'Tutors' }, nume: 'prof. dr. arh. Andra Panait, asist. dr. arh. Mădălina Ionescu, drd. arh. Mădălina Stănășel' },
+  ],
+};
+
 /** proiectele de pe paginile de prototip: cele publicate plus cele încă neconfirmate */
-export const proiectePrototip: Proiect[] = [...proiecte, cerdac];
+export const proiectePrototip: Proiect[] = [...proiecte, cerdac, curtea];
 
 /** variante mai mici ale imaginii (generate de tools/variante-imagini.py) */
 export const srcset = (src: string) => `${src.replace(/\.webp$/, '-800.webp')} 800w, ${src.replace(/\.webp$/, '-1400.webp')} 1400w, ${src} 2000w`;
